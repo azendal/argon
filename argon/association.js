@@ -1,29 +1,28 @@
 Module(Argon, 'Association')({
-    hasOne  : function () {
+    hasOne  : function (config) {
         var association;
-        for (var i=0; i < arguments.length; i++) {
-            association = {
-                type           : 'HAS_ONE',
-                name           : arguments[i].name || arguments[i],
-                cardinality    : 'one',
-                targetModel    : arguments[i].targetModel || window[arguments[i]],
-                localProperty  : arguments[i].localProperty || 'id',
-                targetProperty : arguments[i].targetProperty || (arguments[i] + '_id')
-            };
+        association = {
+            type           : 'HAS_ONE',
+            name           : config.name || config,
+            cardinality    : 'many',
+            targetModel    : config.targetModel || window[config],
+            localProperty  : config.localProperty || 'id',
+            targetProperty : config.targetProperty || (config + '_id')
+        };
+        
+        this.prototype[association.name] = function(callback){
+            var conditions = {};
+            conditions[association.targetProperty] = this[association.localProperty];
             
-            this.prototype[association.name] = function(callback){
-                var conditions = {};
-                conditions[association.targetProperty] = this[association.localProperty];
-                
-                association.targetModel.read({
-                    conditions : conditions
-                }, function(data){
-                    if (callback){
-                        callback(data[0]);
-                    }
-                });
-            };
-        }
+            association.targetModel.read({
+                conditions : conditions
+            }, 
+            function(data){
+                if (callback){
+                    callback(data[0]);
+                }
+            });
+        };
     },
     
     hasMany : function (config) {
@@ -52,30 +51,29 @@ Module(Argon, 'Association')({
         };
     },
     
-    belongsTo  : function () {
+    belongsTo  : function (config) {
         var association;
-        for (var i=0; i < arguments.length; i++) {
-            association = {
-                type           : 'BELONGS_TO',
-                name           : arguments[i].name || arguments[i],
-                cardinality    : 'one',
-                targetModel    : arguments[i].targetModel || window[arguments[i]],
-                targetProperty : arguments[i].targetProperty || 'id',
-                localProperty  : arguments[i].localProperty || (arguments[i] + '_id')
-            };
+        association = {
+            type           : 'BELONGS_TO',
+            name           : config.name || config,
+            cardinality    : 'many',
+            targetModel    : config.targetModel || window[config],
+            localProperty  : config.localProperty || (config + '_id'),
+            targetProperty : config.targetProperty || 'id'
+        };
+        
+        this.prototype[association.name] = function(callback){
+            var conditions = {};
+            conditions[association.targetProperty] = this[association.localProperty];
             
-            this.prototype[association.name] = function(callback){
-                var conditions = {};
-                conditions[association.targetProperty] = this[association.localProperty];
-                
-                association.targetModel.read({
-                    conditions : conditions
-                }, function(data){
-                    if (callback){
-                        callback(data[0]);
-                    }
-                });
-            };
-        }
+            association.targetModel.read({
+                conditions : conditions
+            }, 
+            function(data){
+                if (callback){
+                    callback(data[0]);
+                }
+            });
+        };
     }
 });

@@ -32,6 +32,13 @@ Te.suite('Associations')(function(){
             localProperty  : 'id',
             targetProperty : 'exampleModelId'
         });
+        
+        this.registry.ExampleModel2.belongsTo({
+            name : 'model',
+            targetModel : this.registry.ExampleModel,
+            localProperty : 'exampleModelId',
+            targetProperty : 'id'
+        });
     });
 
     this.specify('Model includes Argon.Asociation')(function(){
@@ -49,12 +56,23 @@ Te.suite('Associations')(function(){
         this.completed();
     });
     
-    this.specify('Model instance association method returns the correct data')(function(spec){
+    this.specify('Model instance  has many association method returns the correct data')(function(spec){
         spec.registry.ExampleModel.read({}, function(data){
             var instance = new spec.registry.ExampleModel(data[0]);
             instance.model2(function(data){
                 spec.assert(data.length).toBeGreaterThan(0);
                 spec.assert(data[0].exampleModelId).toEqual(instance.id);
+                spec.completed();
+            });
+        });
+    });
+    
+    this.specify('hasOne association returns the correct data')(function(spec){
+        spec.registry.ExampleModel2.read({}, function(data){
+            var instance = new spec.registry.ExampleModel2(data[0]);
+            instance.model(function(data){
+                spec.assert(data).toBeTruthy();
+                spec.assert(data.id).toEqual(instance.exampleModelId);
                 spec.completed();
             });
         });

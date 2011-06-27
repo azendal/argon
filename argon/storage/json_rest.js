@@ -139,6 +139,9 @@ Class(Argon.Storage, 'JsonRest')({
                 break;
             default:
                 console.log('Unsuported code returned from the server: ', xhr.status);
+                response = {
+                    error : xhr.status
+                }
         }
 
         callback(response);
