@@ -1,7 +1,7 @@
 Te.suite('Json Rest Storage')(function(){
     var storage = new Argon.Storage.JsonRest({
         url : {
-            post   : '/spec/array_post.js',
+            post   : '/spec/array.js',
             get    : '/spec/array.js',
             put    : '/spec/array.js',
             remove : '/spec/array.js'
