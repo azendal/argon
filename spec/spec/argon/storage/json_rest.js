@@ -12,7 +12,7 @@ Te.suite('Json Rest Storage')(function(){
         this.specify('test request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");
             var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processComplete");
-            storage.post({}, function(){
+            storage.post({data:{x:1}}, function(){
                 spec.assert(spy).toBeCalled();
                 spec.assert(spy2).toBeCalled();
                 spec.completed();

@@ -202,7 +202,8 @@ Class(Argon.Storage, 'JsonRest')({
             
             requestConfig = {
                 url  : this.url.post,
-                type : this.constructor.REQUEST_TYPE_POST
+                type : this.constructor.REQUEST_TYPE_POST,
+                data : params.data
             };
             
             this.constructor._sendRequest(requestConfig, callback);

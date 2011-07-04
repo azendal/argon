@@ -2,7 +2,8 @@ var http = require("http"),
     url = require("url"),
     path = require("path"),
     fs = require("fs"),
-    server = http.createServer();
+    server = http.createServer(),
+    qs = require('querystring');
 
 var app = {
     '/' : {
@@ -19,23 +20,8 @@ var app = {
         },
         
         'POST' : function(req, res) {
-            var data = "";
-
-            req.on("data", function(chunk) {
-                data += chunk;
-            });
-
-            req.on("end", function() {
-                util.log("raw: " + data);
-
-                var json = qs.parse(data);
-
-                util.log("json: " + json);
-                
-                var content = [1,2,3,4,5,6];
-                respondWith(res, JSON.stringify(content));
-                
-            });
+            var content = [1,2,3,4,5,6];
+            respondWith(res, JSON.stringify(content));
         },
         
         'PUT' : function(req, res) {
@@ -59,6 +45,27 @@ var processRequest = function(req, res) {
     console.log('requested url', req.url);
     console.log('request method', req.method);
     console.log('--------------------------------------');
+    
+    var data = '';
+    
+    req.on("data", function(chunk) {
+        console.log('data recieved');
+        data += chunk;
+    });
+
+    req.on("end", function() {
+        console.log("raw: " + data);
+
+        var json = qs.parse(data);
+
+        console.log("json: " + JSON.stringify(json));
+        
+        if(app[req.url] && app[req.url][req.method]){
+            app[req.url][req.method](req, res);
+            return;
+        }
+        
+    });
     
     var uri      = url.parse(req.url).pathname, 
         filename = path.join(process.cwd(), uri);
