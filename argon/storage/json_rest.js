@@ -128,7 +128,9 @@ Class(Argon.Storage, 'JsonRest')({
                 response = JSON.parse(xhr.responseText);
                 break;
             case this.RESPONSE_NOT_FOUND:
-                response = {};
+                response = {
+                  error : xhr.status
+                };
                 break;
             case this.RESPONSE_INTERNAL_SERVER_ERROR:
                 response = {};
@@ -190,24 +192,24 @@ Class(Argon.Storage, 'JsonRest')({
         @argument callback <optional> [Function]
         **/
         post : function (params, callback) {
-            
+
             var requestConfig;
-            
+
             callback = callback || function(){};
 
             if ((typeof params) === 'undefined' || params === null) {
                 callback(null);
                 return this;
             }
-            
+
             requestConfig = {
                 url  : this.url.post,
                 type : this.constructor.REQUEST_TYPE_POST,
                 data : params.data
             };
-            
+
             this.constructor._sendRequest(requestConfig, callback);
-            
+
             return this;
         },
 
@@ -247,40 +249,47 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         put : function (params, callback) {
 
+            var found, storedData, property, requestConfig, property;
+
             callback = callback || function(){};
 
-            if ((typeof data) === 'undefined' || data === null) {
-                callback(data);
+            if ((typeof params) === 'undefined' || params === null) {
+                callback(null);
                 return this;
             }
 
-            this.storage[data.id] = data;
-            callback(this.storage[data.id]);
+            requestConfig = {
+                url    : (params.request || {}).url || this.url.put,
+                type   : this.constructor.REQUEST_TYPE_PUT,
+                data   : params.data || {},
+                query  : params.query || {}
+            };
+
+            this.constructor._sendRequest(requestConfig, callback);
 
             return this;
         },
-
         /**
         Removes this from the resource
-        
+
         Delete cannot be used because its a reserved word on JavaScript and for now is safer to use a synonim
         later this could be aliased by the correct method
-        
+
         @method remove <public>
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
         remove : function (query, callback) {
-            
+
             var requestConfig;
-            
+
             callback = callback || function(){};
 
             if ((typeof query) === 'undefined' || query === null) {
                 callback(null);
                 return this;
             }
-            
+
             requestConfig = {
                 url  : this.url.remove,
                 type : 'DELETE',
@@ -291,3 +300,4 @@ Class(Argon.Storage, 'JsonRest')({
         }
     }
 });
+

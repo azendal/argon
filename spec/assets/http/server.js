@@ -12,23 +12,36 @@ var app = {
             respondWith(res, JSON.stringify(content));
         }
     },
-    
+
     '/spec/array.js' : {
         'GET' : function(req, res) {
             var content = [1,2,3,4,5,6];
             respondWith(res, JSON.stringify(content));
         },
-        
+
         'POST' : function(req, res) {
             var content = [1,2,3,4,5,6];
+            if(req.data.valid === "false") {
+              content = {error : "Invalid Data"};
+              res.writeHead(422, {"Content-Type": "text/json"});
+            } else {
+              res.writeHead(200, {'Content-Type': 'text/javascript'});
+            }
+
             respondWith(res, JSON.stringify(content));
         },
-        
+
         'PUT' : function(req, res) {
             var content = [1,2,3,4,5,6];
+            if(req.data.valid === "false") {
+              content = {error : "Invalid Data"};
+              res.writeHead(422, {"Content-Type": "text/json"});
+            } else {
+              res.writeHead(200, {'Content-Type': 'text/javascript'});
+            }
             respondWith(res, JSON.stringify(content));
         },
-        
+
         'DELETE' : function(req, res) {
             var content = [1,2,3,4,5,6];
             respondWith(res, JSON.stringify(content));
@@ -45,9 +58,9 @@ var processRequest = function(req, res) {
     console.log('requested url', req.url);
     console.log('request method', req.method);
     console.log('--------------------------------------');
-    
+
     var data = '';
-    
+
     req.on("data", function(chunk) {
         console.log('data recieved');
         data += chunk;
@@ -56,28 +69,28 @@ var processRequest = function(req, res) {
     req.on("end", function() {
         console.log("raw: " + data);
 
-        var json = qs.parse(data);
+        req.data = qs.parse(data);
 
-        console.log("json: " + JSON.stringify(json));
-        
+        console.log("json: " + JSON.stringify(req.data));
+
         if(app[req.url] && app[req.url][req.method]){
             app[req.url][req.method](req, res);
             return;
         }
-        
+
     });
-    
-    var uri      = url.parse(req.url).pathname, 
+
+    var uri      = url.parse(req.url).pathname,
         filename = path.join(process.cwd(), uri);
 
     path.exists(filename, function(exists) {
         if(!exists) {
-            
+
             if(app[req.url] && app[req.url][req.method]){
                 app[req.url][req.method](req, res);
                 return;
             }
-            
+
             res.writeHead(404, {"Content-Type": "text/plain"});
             res.write("404 Not Found\n");
             res.end();
@@ -104,13 +117,12 @@ var processRequest = function(req, res) {
 };
 
 var respondWith = function(res, content){
-    res.writeHead(200, {'Content-Type': 'text/javascript'});
     res.write(content);
-    
+
     console.log('--------------------------------------')
     console.log(res._header)
     console.log(content);
-    
+
     res.end();
 };
 
@@ -119,3 +131,4 @@ server.listen(4000);
 
 console.log('Server running on port:4000');
 console.log('waiting...');
+
