@@ -8,6 +8,36 @@ Te.suite('Json Rest Storage')(function(){
         }
     });
 
+
+    var storage2 = new Argon.Storage.JsonRest({
+        url : {
+            post   : '/spec/array.js',
+            get    : '/spec/array.js',
+            put    : '/spec/array.js',
+            remove : '/spec/array.js'
+        }
+    });
+
+    this.describe("_processResponse")(function(){
+      this.beforeEach(function(){
+        storage2.processors.push(function(data){
+            return "data:" + data.join(',');
+        });
+        storage2.processors.push(function(data){
+            return "response_" + data;
+        });
+      });
+
+      this.specify("Response should return a string with prefix 'response_data:'")(function(spec){
+        var regexp = /response_data:.+/;
+        storage2.post({data:{x:1}}, function(data){
+          spec.assert(data).toMatch(regexp);
+          spec.completed();
+        });
+      });
+
+    });
+
     this.describe('post')(function(){
         this.specify('test post request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");

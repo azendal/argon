@@ -62,46 +62,46 @@ Class(Argon.Storage, 'JsonRest')({
     @attribute REQUEST_TYPE_GET <public, static> [String] ('DELETE')
     **/
     REQUEST_TYPE_DELETE : 'DELETE',
-    
+
     /**
     Holds the list of processors that will be running to format and sanitize the response
     returned from the JSON service provider.
-    
+
     All the processors must be syncronous for now so make sure that the return values are the result
     of the processed data.
-    
+
     Example: A simple attribute sanitizer.
-    
+
         Argon.Storage.JsonRest.processors.push(function(data){
             var sanitizedData, property;
-            
+
             sanitizedData = {};
-            
+
             for (property in data) {
                 if (data.hasOwnProperty(property)) {
                     sanitizedData[property.camelize()] = data[property];
                 }
             }
-            
+
             return sanitizedData;
         });
-    
+
     Example: Using the instantiator utility.
-    
+
         Argon.Storage.JsonRest.processors.push(function(data){
             var instantiator = new Instantiator({
                 classNamespace : Argon.TestModel
             });
-            
+
             return instantiator.instantiateResult(data);
         });
-    
+
     @attribute processors <public, static> [Array] ([])
-    
+
     @todo support asynchronous processors (still not sure if this is actually needed)
     **/
     processors : [],
-    
+
     /**
     Internal implementation of the communication sequence with the service
     All requests at some point rely on this method to format the data and send the request to the service
@@ -181,7 +181,7 @@ Class(Argon.Storage, 'JsonRest')({
                     error : xhr.status
                 }
         }
-        
+
         callback(response);
 
         return this;
@@ -220,7 +220,7 @@ Class(Argon.Storage, 'JsonRest')({
                     this[property] = config[property];
                 }
             }
-            
+
             if((typeof this.processors) != 'array'){
                 this.processors = [].concat(this.constructor.processors);
             }
@@ -234,7 +234,9 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         post : function (params, callback) {
 
-            var requestConfig;
+            var requestConfig, storage;
+
+            storage = this;
 
             callback = callback || function(){};
 
@@ -249,7 +251,12 @@ Class(Argon.Storage, 'JsonRest')({
                 data : params.data
             };
 
-            this.constructor._sendRequest(requestConfig, callback);
+            this.constructor._sendRequest(requestConfig, function(data){
+                for (i = 0; i < storage.processors.length; i++) {
+                    data = storage.processors[i](data);
+                }
+                callback(data);
+            });
 
             return this;
         },
@@ -262,7 +269,7 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         get : function (params, callback) {
             var found, storedData, property, requestConfig, property, storage;
-            
+
             storage = this;
             callback = callback || function(){};
 
@@ -280,7 +287,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             this.constructor._sendRequest(requestConfig, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    response = storage.processors[i](data);
+                    data = storage.processors[i](data);
                 }
                 callback(data);
             });
@@ -296,7 +303,9 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         put : function (params, callback) {
 
-            var found, storedData, property, requestConfig, property;
+            var found, storedData, requestConfig, property, storage;
+
+            storage = this;
 
             callback = callback || function(){};
 
@@ -312,11 +321,16 @@ Class(Argon.Storage, 'JsonRest')({
                 query  : params.query || {}
             };
 
-            this.constructor._sendRequest(requestConfig, callback);
+            this.constructor._sendRequest(requestConfig, function(data){
+                for (i = 0; i < storage.processors.length; i++) {
+                    data = storage.processors[i](data);
+                }
+                callback(data);
+            });
 
             return this;
         },
-        
+
         /**
         Removes this from the resource
 
@@ -329,7 +343,9 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         remove : function (query, callback) {
 
-            var requestConfig;
+            var requestConfig, storage;
+
+            storage = this;
 
             callback = callback || function(){};
 
@@ -344,7 +360,14 @@ Class(Argon.Storage, 'JsonRest')({
                 data : query
             };
 
-            this.constructor._sendRequest(requestConfig, callback);
+            this.constructor._sendRequest(requestConfig, function(data){
+                for (i = 0; i < storage.processors.length; i++) {
+                    data = storage.processors[i](data);
+                }
+                callback(data);
+            });
+
+            return this;
         }
     }
 });
