@@ -1,14 +1,12 @@
 Module(Argon, 'Model').includes(CustomEventSupport)({
     storage : null,
-
-    create : function(data){
+    create  : function (data) {
         this.dispatch('beforeCreate');
         model = new this(data);
         this.dispatch('afterCreate');
         return model;
     },
-
-    read : function(query, callback) {
+    read    : function (query, callback) {
         var data, Model;
         query = query || {};
 
@@ -27,19 +25,49 @@ Module(Argon, 'Model').includes(CustomEventSupport)({
     },
 
     prototype : {
-        properties : {},
-        init : function (data){
-            $.extend(this, data);
-        },
-        augment : function(attrs){
-            for(var attr in attrs) {
-              if(attrs.hasOwnProperty(attr)) {
-                this[attr] = attrs[attr];
-              }
+        init             : function (properties) {
+            var property;
+            
+            this.eventListeners = [];
+            
+            for (property in properties) {
+                if (properties.hasOwnProperty(property)) {
+                    this[property] = properties[property];
+                }
             }
+            
             return this;
         },
-        save : function (callback) {
+        getProperty      : function (property) {
+          return this[attribute];  
+        },
+        setProperty      : function (property, newValue) {
+            var originalValue;
+            
+            if (newValue != originalValue) {
+                originalValue = this[property];
+                this[property] = newValue;
+
+                this.dispatch('change:' + property, {
+                    originalValue : originalValue,
+                    newValue      : newValue
+                });
+            }
+            
+            return this;
+        },
+        updateProperties : function (properties) {
+            var property;
+            
+            for (property in properties) {
+                if (properties.hasOwnProperty(property)) {
+                    this.setProperty(property, properties[property]);
+                }
+            }
+            
+            return this;
+        }, 
+        save             : function (callback) {
             var model;
 
             model = this;
@@ -62,8 +90,8 @@ Module(Argon, 'Model').includes(CustomEventSupport)({
                     }
                 });
             }
-        },
-        destroy : function (callback) {
+        }, 
+        destroy          : function (callback) {
             var model = this;
             this.dispatch('beforeDestroy');
 
@@ -79,4 +107,3 @@ Module(Argon, 'Model').includes(CustomEventSupport)({
         }
     }
 });
-

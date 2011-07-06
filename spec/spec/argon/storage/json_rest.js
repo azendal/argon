@@ -11,7 +11,7 @@ Te.suite('Json Rest Storage')(function(){
     this.describe('post')(function(){
         this.specify('test post request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");
-            var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processComplete");
+            var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processResponse");
             storage.post({data:{x:1}}, function(){
                 spec.assert(spy).toBeCalled();
                 spec.assert(spy2).toBeCalled();
@@ -45,7 +45,7 @@ Te.suite('Json Rest Storage')(function(){
 
         this.specify('test get request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");
-            var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processComplete");
+            var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processResponse");
             storage.get({}, function(){
                 spec.assert(spy).toBeCalled();
                 spec.assert(spy2).toBeCalled();

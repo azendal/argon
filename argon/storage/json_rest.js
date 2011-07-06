@@ -62,7 +62,46 @@ Class(Argon.Storage, 'JsonRest')({
     @attribute REQUEST_TYPE_GET <public, static> [String] ('DELETE')
     **/
     REQUEST_TYPE_DELETE : 'DELETE',
-
+    
+    /**
+    Holds the list of processors that will be running to format and sanitize the response
+    returned from the JSON service provider.
+    
+    All the processors must be syncronous for now so make sure that the return values are the result
+    of the processed data.
+    
+    Example: A simple attribute sanitizer.
+    
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var sanitizedData, property;
+            
+            sanitizedData = {};
+            
+            for (property in data) {
+                if (data.hasOwnProperty(property)) {
+                    sanitizedData[property.camelize()] = data[property];
+                }
+            }
+            
+            return sanitizedData;
+        });
+    
+    Example: Using the instantiator utility.
+    
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var instantiator = new Instantiator({
+                classNamespace : Argon.TestModel
+            });
+            
+            return instantiator.instantiateResult(data);
+        });
+    
+    @attribute processors <public, static> [Array] ([])
+    
+    @todo support asynchronous processors (still not sure if this is actually needed)
+    **/
+    processors : [];
+    
     /**
     Internal implementation of the communication sequence with the service
     All requests at some point rely on this method to format the data and send the request to the service
@@ -83,11 +122,8 @@ Class(Argon.Storage, 'JsonRest')({
             global      : false,
             async       : true,
             cache       : false,
-            beforeSend  : function(){
-
-            },
             complete    : function(xhr, message){
-                storage._processComplete(xhr, message, callback);
+                storage._processResponse(xhr, message, callback);
             }
         };
 
@@ -112,13 +148,13 @@ Class(Argon.Storage, 'JsonRest')({
     Internal data processing for request responses
     In order to transform the responses from the server to native models this process does certain operations
     to transform the data from the server notation to JavaScript notation
-    @method _processComplete <public, static> [Function]
+    @method _processResponse <public, static> [Function]
     @argument xhr
     @argument message
     @argument callback
     **/
-    _processComplete : function (xhr, message, callback) {
-        var response;
+    _processResponse : function (xhr, message, callback) {
+        var response, i;
 
         switch (xhr.status) {
             case this.RESPONSE_OK:
@@ -145,7 +181,11 @@ Class(Argon.Storage, 'JsonRest')({
                     error : xhr.status
                 }
         }
-
+        
+        for (i = 0; i < this.processors.length; i++) {
+            response = this.processors[i](response);
+        }
+        
         callback(response);
 
         return this;
@@ -269,6 +309,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             return this;
         },
+        
         /**
         Removes this from the resource
 
