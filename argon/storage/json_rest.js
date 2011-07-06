@@ -100,7 +100,7 @@ Class(Argon.Storage, 'JsonRest')({
     
     @todo support asynchronous processors (still not sure if this is actually needed)
     **/
-    processors : [];
+    processors : [],
     
     /**
     Internal implementation of the communication sequence with the service
@@ -182,10 +182,6 @@ Class(Argon.Storage, 'JsonRest')({
                 }
         }
         
-        for (i = 0; i < this.processors.length; i++) {
-            response = this.processors[i](response);
-        }
-        
         callback(response);
 
         return this;
@@ -197,6 +193,7 @@ Class(Argon.Storage, 'JsonRest')({
     @prototype
     **/
     prototype : {
+        processors : null,
         /**
         Contains the resource routes for the model.
         every property matches the name of a method that will do an operation with the resource
@@ -222,6 +219,10 @@ Class(Argon.Storage, 'JsonRest')({
                 if (config.hasOwnProperty(property)) {
                     this[property] = config[property];
                 }
+            }
+            
+            if((typeof this.processors) != 'array'){
+                this.processors = [].concat(this.constructor.processors);
             }
         },
 
@@ -260,8 +261,9 @@ Class(Argon.Storage, 'JsonRest')({
         @argument callback <optional> [Function]
         **/
         get : function (params, callback) {
-            var found, storedData, property, requestConfig, property;
-
+            var found, storedData, property, requestConfig, property, storage;
+            
+            storage = this;
             callback = callback || function(){};
 
             if ((typeof params) === 'undefined' || params === null) {
@@ -276,7 +278,12 @@ Class(Argon.Storage, 'JsonRest')({
                 query  : params.query || {}
             };
 
-            this.constructor._sendRequest(requestConfig, callback);
+            this.constructor._sendRequest(requestConfig, function(data){
+                for (i = 0; i < storage.processors.length; i++) {
+                    response = storage.processors[i](data);
+                }
+                callback(data);
+            });
 
             return this;
         },
