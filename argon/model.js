@@ -3,9 +3,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     _cache  : {},
     _cacheTimeToLive : {
         all      : null,
-        instance : null,
-        first    : null,
-        last     : null
+        instance : null
     },
     create  : function (data) {
         this.dispatch('beforeCreate');
@@ -36,14 +34,14 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     isCached : function (key) {
         return this._cache.hasOwnProperty(key) && this._cache[key].data != 'undefined';
     },
-    isCacheExpired : function(key) {
-        if (this._cacheTimeToLive.hasOwnProperty(key)) {
-            return this._cacheTimeToLive[key] !== null && ((new Date() - this._cache[key].cachedAt) > this._cacheTimeToLive[key]);
+    isCacheExpired : function(key, timeKey) {
+        if (this._cacheTimeToLive.hasOwnProperty(timeKey)) {
+            return this._cacheTimeToLive[timeKey] !== null && ((new Date() - this._cache[key].cachedAt) > this._cacheTimeToLive[timeKey]);
         }
         return false;
     },
     all : function (callback) {
-        if( this.isCached('all') && !this.isCacheExpired('all') ) {
+        if( this.isCached('all') && !this.isCacheExpired('all', 'all') ) {
             data = this._cache.all.data;
             if (callback) {
                 callback.call(this, data);
@@ -63,7 +61,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     },
     find : function (id, callback) {
         var key = 'find_' + id.toString();
-        if (this.isCached(key) && !this.isCacheExpired(key)) {
+        if (this.isCached(key) && !this.isCacheExpired(key,'instance')) {
             data = this._cache[key].data;
             if (callback) {
                 callback.call(this, data);
@@ -85,7 +83,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         customConditions[attribute] = value;
         key = 'findBy_' + attribute + '_' + value;
 
-        if (this.isCached(key) && !this.isCacheExpired(key)) {
+        if (this.isCached(key) && !this.isCacheExpired(key,'instance')) {
             data = this._cache[key].data;
             if (callback) {
                 callback.call(this, data);
