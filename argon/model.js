@@ -1,5 +1,12 @@
 Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     storage : null,
+    _cache  : {},
+    _cacheTimeToLive : {
+        all      : null,
+        instance : null,
+        first    : null,
+        last     : null
+    },
     create  : function (data) {
         this.dispatch('beforeCreate');
         model = new this(data);
@@ -26,21 +33,73 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
 
         return this;
     },
+    isCached : function (key) {
+        return this._cache.hasOwnProperty(key) && this._cache[key].data != 'undefined';
+    },
+    isCacheExpired : function(key) {
+        if (this._cacheTimeToLive.hasOwnProperty(key)) {
+            return this._cacheTimeToLive[key] !== null && ((new Date() - this._cache[key].cachedAt) > this._cacheTimeToLive[key]);
+        }
+        return false;
+    },
     all : function (callback) {
-      this.read({}, callback);
-      return this;
+        if( this.isCached('all') && !this.isCacheExpired('all') ) {
+            data = this._cache.all.data;
+            if (callback) {
+                callback.call(this, data);
+            }
+            this.dispatch('afterRead');
+        } else {
+            var that = this;
+            this.read({}, function (data) {
+                if (callback) {
+                    callback.call(that, data);
+                }
+                that._cache.all = { data : data, cachedAt : (new Date())};
+                that.dispatch('afterRead');
+            });
+        }
+        return this;
     },
     find : function (id, callback) {
-      this.read({conditions : {id : id}}, callback);
-      return this;
+        var key = 'find_' + id.toString();
+        if (this.isCached(key) && !this.isCacheExpired(key)) {
+            data = this._cache[key].data;
+            if (callback) {
+                callback.call(this, data);
+            }
+        } else {
+            var that = this;
+            this.read({conditions : {id : id}}, function (data) {
+                if (callback) {
+                    callback.call(that, data);
+                }
+                that._cache[key] = { data : data, cachedAt : (new Date())};
+            });
+        }
+        return this;
     },
-    find_by : function (attribute, value, callback) {
-      var customConditions = {};
-      customConditions[attribute] = value;
+    findBy : function (attribute, value, callback) {
+        var customConditions, key;
+        customConditions = {};
+        customConditions[attribute] = value;
+        key = 'findBy_' + attribute + '_' + value;
 
-      this.read({conditions : customConditions}, callback);
-
-      return this;
+        if (this.isCached(key) && !this.isCacheExpired(key)) {
+            data = this._cache[key].data;
+            if (callback) {
+                callback.call(this, data);
+            }
+        } else {
+            var that = this;
+            this.read({conditions : customConditions}, function (data) {
+                if (callback) {
+                    callback.call(that, data);
+                }
+                that._cache[key] = { data : data, cachedAt : (new Date())};
+            });
+        }
+        return this;
     },
     prototype : {
         errors           : [],

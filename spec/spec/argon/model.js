@@ -62,8 +62,8 @@ Te.suite('Model')(function(){
                 });
             });
 
-            this.specify('retrieve data with find_by method')(function(spec){
-                this.registry.ExampleModel.find_by("data", 2, function(data){
+            this.specify('retrieve data with findBy method')(function(spec){
+                this.registry.ExampleModel.findBy("data", 2, function(data){
                     spec.assert(data.length).toBeGreaterThan(0);
                     spec.assert(data[0].id).toEqual('asdxsgasd');
                     spec.completed();
@@ -188,6 +188,48 @@ Te.suite('Model')(function(){
                   spec.completed();
                 });
 
+            });
+        });
+
+        this.describe('Model caching system')(function () {
+            this.beforeEach(function () {
+                this.registry.CachingModel = Class().includes(Argon.Model)({
+                    storage : (new Argon.Storage.Local())
+                });
+                this.registry.CachingModel.storage.storage = {
+                    'asddsgasd' : {id : 'asddsgasd', data : 1},
+                    'asdxsgasd' : {id : 'asdxsgasd', data : 2},
+                    'avfskgasd' : {id : 'avfskgasd', data : 3},
+                    'w29xsgasd' : {id : 'w29xsgasd', data : 4}
+                };
+                this.registry.CachingModel.all(function (data) {
+                  this._cache.all = {data : "all cached!", cachedAt : (new Date())};
+                  this._cache.find_asddsgasd = {data : "find cached!", cachedAt : (new Date())};
+                  this._cache.findBy_id_asddsgasd = {data : "findBy cached!", cachedAt : (new Date())};
+                  return this;
+                });
+            });
+
+            this.specify('Should read all from cache')(function (spec) {
+                this.registry.CachingModel.all(function (data) {
+                    spec.assert(data).toEqual("all cached!");
+                    spec.completed();
+                });
+            });
+
+            this.specify('Should find from cache')(function (spec) {
+                this.registry.CachingModel.find('asddsgasd',function (data) {
+                    spec.assert(data).toEqual("find cached!");
+                    spec.completed();
+                });
+            });
+
+
+            this.specify('Should findBy from cache')(function (spec) {
+                this.registry.CachingModel.findBy('id','asddsgasd',function (data) {
+                    spec.assert(data).toEqual("findBy cached!");
+                    spec.completed();
+                });
             });
         });
     });
