@@ -10,48 +10,43 @@ Class("Instantiator")({
       return this;
     },
 
-    instantiateResult: function(element) {
+    instantiateResult : function(element) {
+        var property, i, result, className;
+        
+        className = Object.prototype.toString.call(element).replace('[object ', '').replace(']', '');
+        
+        if ('Array' === className) {
+            result = [];
 
-        var that     = this;
-        var instance = null;
-
-        if(element === null || typeof(element) === 'undefined'){
-            return;
-        }
-
-        if(element.constructor === Array){
-            var instances = [];
-
-            for(var arrayIndex = 0; arrayIndex < element.length; arrayIndex++) {
-                instances.push(that.instantiateResult(element[arrayIndex]));
+            for(i = 0; i < element.length; i++) {
+                result.push(this.instantiateResult(element[i]));
             }
-
-            return instances;
         }
-        else if (element.constructor === Object){
+        else if ( 'Object' === className ) {
             element = this.decodeFields(element);
+            
             if (element.hasOwnProperty('_className')) {
-              instance = new this.classNamespace[element._className]({id : element.id});
+                result = new this.classNamespace[element._className]({id : element.id});
             }
-            for(var key in element) {
-                if (element.hasOwnProperty(key)) {
-                    var val = element[key];
-                    if (val.constructor == Array) {
-                      for (var arrayIndex = 0; arrayIndex < val.length; arrayIndex++) {
-                        val[arrayIndex] = that.instantiateResult(val[arrayIndex]);
-                      }
-                    } else if (val.constructor == Object) {
-                        val = that.instantiateResult(val);
-                    }
-                    (instance || element)[key] = val;
+            else {
+                result = element;
+            }
+            
+            for(property in element) {
+                if (element.hasOwnProperty(property)) {
+                    result[property] = this.instantiateResult(element[property]);
                 }
             }
         }
-        return instance || element;
+        else {
+            result = element;
+        }
+        
+        return result;
     },
 
 
-    decodeFields: function(element) {
+    decodeFields : function(element) {
         var properties = {};
         var keyName;
         for(var key in element) {
