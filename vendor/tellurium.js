@@ -456,6 +456,8 @@ Class(Tellurium, 'Specification').includes(Tellurium.Stub.Factory, Tellurium.Spy
             this.type        = type || this.TYPE_ASYNC;
             this.registry    = {};
             this.assertions  = [];
+            this.spies       = [];
+            this.stubs       = [];
             this.isCompleted = false;
         },
         setParent       : function (parent) {

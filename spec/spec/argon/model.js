@@ -16,31 +16,31 @@ Te.suite('Model')(function(){
         this.assert(this.registry.ExampleModel.storage).toBeTruthy();
         this.completed();
     });
-    
+
     this.specify('every model must have a spearate instance of storage')(function(){
         var Model1, Model2;
-        
+
         Model1 = this.registry.ExampleModel;
         Model2 = Class().includes(Argon.Model)({
             storage : (new Argon.Storage.Local())
         });
 
         this.registry.ExampleModel.className = 'Model2';
-        
+
         this.assert(Model1.storage).not().toBe(Model2.storage);
         this.completed();
     });
-    
+
     this.describe('Model operations')(function(){
-        
+
         this.beforeEach(function(){
             this.registry.exampleModel  = new this.registry.ExampleModel({
                 data : 'some data'
             });
         });
-        
+
         this.describe('reading data from storage')(function(){
-            
+
             this.beforeEach(function(){
                 this.registry.ExampleModel.storage.storage = {
                     'asddsgasd' : {id : 'asddsgasd', data : 1},
@@ -49,23 +49,31 @@ Te.suite('Model')(function(){
                     'w29xsgasd' : {id : 'w29xsgasd', data : 4}
                 };
             });
-            
+
             this.afterEach(function(){
                 Argon.Storage.Local.storage = {};
             });
-            
-            this.specify('retrieve all data for the model')(function(spec){
-                this.registry.ExampleModel.read({}, function(data){
-                    spec.assert(data).toBeInstanceOf(Array);
+
+            this.specify('retrieve data with find method')(function(spec){
+                this.registry.ExampleModel.find('avfskgasd', function(data){
                     spec.assert(data.length).toBeGreaterThan(0);
+                    spec.assert(data[0].data).toEqual(3);
                     spec.completed();
                 });
             });
-            
-            this.specify('retrieve data with a query')(function(spec) {
-                this.registry.ExampleModel.read({conditions : {id : 'avfskgasd'}}, function(data) {
+
+            this.specify('retrieve data with findBy method')(function(spec){
+                this.registry.ExampleModel.findBy("data", 2, function(data){
                     spec.assert(data.length).toBeGreaterThan(0);
-                    spec.assert(data[0].data).toEqual(3);
+                    spec.assert(data[0].id).toEqual('asdxsgasd');
+                    spec.completed();
+                });
+            });
+
+            this.specify('retrieve data with all method')(function(spec){
+                this.registry.ExampleModel.all(function(data){
+                    spec.assert(data).toBeInstanceOf(Array);
+                    spec.assert(data.length).toBeGreaterThan(0);
                     spec.completed();
                 });
             });
@@ -73,7 +81,7 @@ Te.suite('Model')(function(){
 
         this.describe('saving data with the model')(function(){
 
-            this.specify('saves reccord to storage')(function(spec){
+            this.specify('saves record to storage')(function(spec){
 
                 this.registry.exampleModel.save(function(data){
                     spec.assert(data.id).toBeTruthy();
@@ -134,25 +142,96 @@ Te.suite('Model')(function(){
                 });
 
             });
-            
+
         });
-        
+
         this.describe('Model event system')(function(){
-            
+
             this.specify('BeforeRead event')(function(spec){
                 var executedEvent;
-                
+
                 executedEvent = false;
-                
+
                 this.registry.ExampleModel.bind('beforeRead', function(){
-                   executedEvent = true; 
+                   executedEvent = true;
                 });
-                
+
                 this.registry.ExampleModel.read({}, function(){
                     spec.assert(executedEvent).toBe(true);
+                    spec.completed();
+                });
+            });
+
+            this.describe('Model validations system')(function(){
+                var ValidationModel = Class().includes(Argon.Model)({
+                    storage : (new Argon.Storage.Local()),
+                    validations : {
+                        presenceOf : {
+                            validate : function() {
+                                return this.hasOwnProperty('data') && !!this['data'];
+                            },
+                            message : "Data is required"
+                        }
+                    }
+                });
+
+                this.specify('Validate required field data is present')(function(spec){
+                  var model = new ValidationModel({data : 3});
+                  spec.assert(model.isValid()).toEqual(true);
+                  spec.completed();
+                });
+
+                this.specify('Should not save model without data field')(function(spec){
+                  var model = new ValidationModel();
+                  model.save();
+                  spec.assert(model.errors[0]).toEqual("Data is required");
+                  spec.completed();
+                });
+
+            });
+        });
+
+        this.describe('Model caching system')(function () {
+            this.beforeEach(function () {
+                this.registry.CachingModel = Class().includes(Argon.Model)({
+                    storage : (new Argon.Storage.Local())
+                });
+                this.registry.CachingModel.storage.storage = {
+                    'asddsgasd' : {id : 'asddsgasd', data : 1},
+                    'asdxsgasd' : {id : 'asdxsgasd', data : 2},
+                    'avfskgasd' : {id : 'avfskgasd', data : 3},
+                    'w29xsgasd' : {id : 'w29xsgasd', data : 4}
+                };
+                this.registry.CachingModel.all(function (data) {
+                  this._cache.all = {data : "all cached!", cachedAt : (new Date())};
+                  this._cache.find_asddsgasd = {data : "find cached!", cachedAt : (new Date())};
+                  this._cache.findBy_id_asddsgasd = {data : "findBy cached!", cachedAt : (new Date())};
+                  return this;
+                });
+            });
+
+            this.specify('Should read all from cache')(function (spec) {
+                this.registry.CachingModel.all(function (data) {
+                    spec.assert(data).toEqual("all cached!");
+                    spec.completed();
+                });
+            });
+
+            this.specify('Should find from cache')(function (spec) {
+                this.registry.CachingModel.find('asddsgasd',function (data) {
+                    spec.assert(data).toEqual("find cached!");
+                    spec.completed();
+                });
+            });
+
+
+            this.specify('Should findBy from cache')(function (spec) {
+                this.registry.CachingModel.findBy('id','asddsgasd',function (data) {
+                    spec.assert(data).toEqual("findBy cached!");
                     spec.completed();
                 });
             });
         });
     });
 });
+
