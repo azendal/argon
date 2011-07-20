@@ -181,7 +181,17 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     },
     
     prototype : {
+        /**
+        Contain the errors for the model instance
+        @attribute errors <public> [Array] ([])
+        **/
         errors           : [],
+        
+        /**
+        Object initializer, this method server as the real constructor
+        @method init <public>
+        @argument properties <optional> [Object] ({}) the attributes for the model isntance
+        **/
         init             : function (properties) {
             var property;
 
