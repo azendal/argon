@@ -1,5 +1,16 @@
 Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
+    
+    /**
+    Contains the instance of the storage adapter for the model
+    This property must be set when creating the model
+    @property storage <public> [Storage] (null)
+    **/
     storage : null,
+    
+    /**
+    Contains the caching data for the model
+    @property _cache <private> [Object] ({})
+    **/
     _cache  : {},
     
     /**
@@ -7,7 +18,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     By default this are cached forever, so the possible values for this is:
     null cache forever
     Number (milliseconds) the time to live for the caching key
-    @property _cacheTimeToLive [Object] ({all:null,instance:null})
+    @property _cacheTimeToLive <private> [Object] ({all:null,instance:null})
     **/
     _cacheTimeToLive : {
         all      : null,
@@ -86,9 +97,9 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model].
     **/
     all : function (callback) {
-        var model, data;
+        var Model, data;
         
-        model = this;
+        Model = this;
         
         if( this.isCached('all') && !this.isCacheExpired('all', 'all') ) {
             data = this._cache.all.data;
@@ -99,13 +110,13 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         } else {
             this.read({}, function (data) {
                 if (callback) {
-                    callback.call(model, data);
+                    callback.call(Model, data);
                 }
-                model._cache.all = {
+                Model._cache.all = {
                     cachedAt : (new Date()),
                     data     : data
                 };
-                model.dispatch('afterRead');
+                Model.dispatch('afterRead');
             });
         }
         
