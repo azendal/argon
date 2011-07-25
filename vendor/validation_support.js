@@ -1,17 +1,21 @@
 Module("ValidationSupport")({
-    validations : [],
+    validations : null,
 
     prototype : {
         isValid : function () {
-            var i, valid, validationPassed;
+            var valid, validationPassed, validations;
             valid = true;
+            validations = this.constructor.validations;
+            
+            if(!this.hasOwnProperty('errors')) {
+                this.errors = [];
+            }
 
-            for (i = 0; i < this.constructor.validations.length; i++) {
-                validation = this.constructor.validations[i];
-                if (this.constructor.validations.hasOwnProperty(validation)) {
-                    validationPassed = this.constructor.validations[validation].validate.apply(this);
+            for (var validation in validations) {
+                if (validations.hasOwnProperty(validation)) {
+                    validationPassed = validations[validation].validate.apply(this);
                     if (!validationPassed) {
-                        this.errors.push(this.constructor.validations[validation].message);
+                        this.errors.push(validations[validation].message);
                         valid = false;
                     }
                 }
