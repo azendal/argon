@@ -29,7 +29,11 @@ Te.suite('Argon Usage')(function() {
             spec.assert(user.username).toEqual('fernando');
             spec.assert(user.password).toEqual('123456');
             
-            user.password = '1234567';
+            user.bind('change:password', function(){
+                console.log('password changed');
+            });
+            
+            user.setProperty('password', '1234567');
             user.save(function(user){
                 spec.assert(user.password).toEqual('1234567');
                 spec.completed();
