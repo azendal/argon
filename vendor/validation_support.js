@@ -3,10 +3,11 @@ Module("ValidationSupport")({
 
     prototype : {
         isValid : function () {
-            var valid, validationPassed;
+            var i, valid, validationPassed;
             valid = true;
 
-            for (var validation in this.constructor.validations) {
+            for (i = 0; i < this.constructor.validations.length; i++) {
+                validation = this.constructor.validations[i];
                 if (this.constructor.validations.hasOwnProperty(validation)) {
                     validationPassed = this.constructor.validations[validation].validate.apply(this);
                     if (!validationPassed) {

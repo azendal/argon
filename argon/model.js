@@ -31,10 +31,10 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @argument data <required> [Object] the attributes of the model.
     @return [Argon.Model]
     **/
-    create  : function (data) {
+    create  : function (data, callback) {
         this.dispatch('beforeCreate');
         model = new this(data);
-        model.save();
+        model.save(callback);
         this.dispatch('afterCreate');
         return model;
     },
