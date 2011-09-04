@@ -197,7 +197,7 @@ Class(Argon.Storage, 'JsonRest')({
         /**
         Contains the resource routes for the model.
         every property matches the name of a method that will do an operation with the resource
-        @attribute url <public> [Object]
+        @attribute url <public> [Object] ({post: '', get: '', put: '', remove: ''})
         **/
         url : {
             post   : '',

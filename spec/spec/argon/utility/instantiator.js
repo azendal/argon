@@ -1,8 +1,8 @@
 Argon.TestModel = {};
 
-Class(Argon.TestModel, "ExampleModel").inherits(Argon.Model)({});
-Class(Argon.TestModel, "ParentModel").inherits(Argon.Model)({});
-Class(Argon.TestModel, "ChildModel").inherits(Argon.Model)({});
+Class(Argon.TestModel, "ExampleModel").includes(Argon.Model)({});
+Class(Argon.TestModel, "ParentModel").includes(Argon.Model)({});
+Class(Argon.TestModel, "ChildModel").includes(Argon.Model)({});
 
 Te.suite("Model Instantiator")(function(){
 
