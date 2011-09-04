@@ -1,4 +1,17 @@
+/**
+Provides association capabilities to argon, this is a module and should be included
+on all the models that require association.
+@module Association
+@namespace Argon
+**/
 Module(Argon, 'Association')({
+    /**
+    Creates a hasOne method on the class running the method, this creates the "associationName"
+    method on the object running the method. This is a factory method
+    @method <public> hasOne
+    @argument <required> [Object] ({}) config
+    @return this
+    **/
     hasOne  : function (config) {
         var association;
         association = {
@@ -23,8 +36,17 @@ Module(Argon, 'Association')({
                 }
             });
         };
+        
+        return this;
     },
     
+    /**
+    Creates a hasMany method on the class running the method, this creates the "associationName"
+    method on the object running the method. This is a factory method
+    @method <public> hasMany
+    @argument <required> [Object] ({}) config
+    @return this
+    **/
     hasMany : function (config) {
         var association;
         association = {
@@ -49,8 +71,17 @@ Module(Argon, 'Association')({
                 }
             });
         };
+        
+        return this;
     },
     
+    /**
+    Creates a belongsTo method on the class running the method, this creates the "associationName"
+    method on the object running the method. This is a factory method.
+    @method <public> belongsTo
+    @argument <required> [Object] ({}) config
+    @return this
+    **/
     belongsTo  : function (config) {
         var association;
         association = {
@@ -75,5 +106,7 @@ Module(Argon, 'Association')({
                 }
             });
         };
+        
+        return this;
     }
 });
