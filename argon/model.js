@@ -1,3 +1,11 @@
+/**
+This is the default Model functionality that Argon provides. Models include
+Events and Validations. All packaged in a module you can include on your objects.
+@module Model
+@namespace Argon
+@includes CustomEventSupport
+@includes ValidationSupport
+**/
 Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     
     /**

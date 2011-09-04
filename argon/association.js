@@ -5,6 +5,7 @@ on all the models that require association.
 @namespace Argon
 **/
 Module(Argon, 'Association')({
+    
     /**
     Creates a hasOne method on the class running the method, this creates the "associationName"
     method on the object running the method. This is a factory method
