@@ -102,6 +102,8 @@ Class(Argon.Storage, 'JsonRest')({
     **/
     processors : [],
 
+	preprocessors : [],
+
     /**
     Internal implementation of the communication sequence with the service
     All requests at some point rely on this method to format the data and send the request to the service
@@ -194,6 +196,7 @@ Class(Argon.Storage, 'JsonRest')({
     **/
     prototype : {
         processors : null,
+		preprocessors : null,
         /**
         Contains the resource routes for the model.
         every property matches the name of a method that will do an operation with the resource
@@ -223,6 +226,9 @@ Class(Argon.Storage, 'JsonRest')({
 
             if((typeof this.processors) != 'array'){
                 this.processors = [].concat(this.constructor.processors);
+            }
+			if((typeof this.preprocessors) != 'array'){
+                this.preprocessors = [].concat(this.constructor.preprocessors);
             }
         },
 
@@ -272,6 +278,10 @@ Class(Argon.Storage, 'JsonRest')({
 
             storage = this;
             callback = callback || function(){};
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                params = storage.preprocessors[i](params);
+            }
 
             if ((typeof params) === 'undefined' || params === null) {
                 callback(null);
