@@ -46,7 +46,20 @@ var app = {
             var content = [1,2,3,4,5,6];
             respondWith(res, JSON.stringify(content));
         }
-    }
+    },
+
+	'/spec/request_with_params.js' : {
+		'GET' : function(req, res) {
+			var expected = JSON.stringify({id:1, query: {first_name:"John", last_name:"Doe"}});
+			console.log('ASDADASDASDASD!')
+			if (JSON.stringify(req.data) === expected){
+				res.writeHead(200, {'Content-Type': 'text/javascript'});
+			} else {
+				res.writeHead(422, {"Content-Type":"text/json"});
+			}
+			respondWith(res, expected);
+		}
+	}
 };
 
 var processRequest = function(req, res) {

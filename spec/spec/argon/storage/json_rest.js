@@ -18,6 +18,12 @@ Te.suite('Json Rest Storage')(function(){
         }
     });
 
+	var storage3 = new Argon.Storage.JsonRest({
+		url : {
+			get : '/spec/request_with_params.js'
+		}
+	});
+
     this.describe("_processResponse")(function(){
       this.beforeEach(function(){
         storage2.processors.push(function(data){
@@ -26,6 +32,9 @@ Te.suite('Json Rest Storage')(function(){
         storage2.processors.push(function(data){
             return "response_" + data;
         });
+		storage2.preprocessors.push(function(params){
+			FieldEncoder.encode(params);
+		});
       });
 
       this.specify("Response should return a string with prefix 'response_data:'")(function(spec){
@@ -89,6 +98,30 @@ Te.suite('Json Rest Storage')(function(){
                 spec.completed();
             });
         });
+
+		this.specify('preprocessors are executed')(function(spec){
+			var spy = this.spy().on(storage2.preprocessors).method(0);
+			var data = {someData:'value'};
+			storage2.get(data, function(result){
+				spec.assert(spy).toBeCalled();
+				spec.completed();
+			});
+		});
+		
+		this.specify('Field Encoder preprocessor is executed')(function(spec){
+			storage3.preprocessors.push(function(params) {
+				var encodedFields = FieldEncoder.encode(params);
+				return encodedFields;
+			});
+			var spy = this.spy().on(storage3.preprocessors).method(0);
+			var data = {id:1, query: {firstName:"John", lastName:"Doe"}};
+			var expected = {id:1, query: {first_name:"John", last_name:"Doe"}};
+			storage3.get(data, function(result){
+				spec.assert(spy).toBeCalled();
+				spec.assert(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+				spec.completed();
+			});
+		});
 
     });
 
