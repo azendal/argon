@@ -2,14 +2,13 @@ Module("ValidationSupport")({
     validations : null,
 
     prototype : {
+        errors : [];
         isValid : function () {
             var valid, validationPassed, validations;
             valid = true;
             validations = this.constructor.validations;
             
-            if(!this.hasOwnProperty('errors')) {
-                this.errors = [];
-            }
+            this.errors = [];
 
             for (var validation in validations) {
                 if (validations.hasOwnProperty(validation)) {
