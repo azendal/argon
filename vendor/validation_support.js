@@ -2,7 +2,7 @@ Module("ValidationSupport")({
     validations : null,
 
     prototype : {
-        errors : [];
+        errors : [],
         isValid : function () {
             var valid, validationPassed, validations;
             valid = true;
