@@ -42,9 +42,11 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     create  : function (data, callback) {
         this.dispatch('beforeCreate');
         model = new this(data);
-        model.save(callback);
-        this.dispatch('afterCreate');
-        return model;
+        model.save(callback, function (instance) {
+            this.dispatch('afterCreate');
+            return instance;
+        });
+        return this;
     },
     
     /**
