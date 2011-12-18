@@ -1,1 +1,1 @@
-Module('Argon')({});
+var Ar = Module('Argon')({});

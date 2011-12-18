@@ -305,7 +305,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         Removes a record from storage.
         @method destroy <public>
         @argument callback [Function] function to manage response.
-        @return Noting.
+        @return null.
         **/
         destroy          : function (callback) {
             var model = this;
@@ -320,6 +320,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     callback(model);
                 }
             });
+            
+            return null;
         }
     }
 });
