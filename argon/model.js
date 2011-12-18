@@ -40,6 +40,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model]
     **/
     create  : function (data, callback) {
+        var model;
         this.dispatch('beforeCreate');
         model = new this(data);
         model.save(callback, function (instance) {
@@ -57,7 +58,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model]
     **/
     read    : function (query, callback) {
-        var data, Model;
+        var Model;
         query = query || {};
 
         Model = this;
@@ -141,7 +142,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model].
     **/
     find : function (id, callback) {
-        var key = 'find_' + id.toString();
+        var key, data;
+        key = 'find_' + id.toString();
         if (this.isCached(key) && !this.isCacheExpired(key,'instance')) {
             data = this._cache[key].data;
             if (callback) {
@@ -168,7 +170,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model].
     **/
     findBy : function (attribute, value, callback) {
-        var customConditions, key;
+        var customConditions, key, data;
         customConditions = {};
         customConditions[attribute] = value;
         key = 'findBy_' + attribute + '_' + value;

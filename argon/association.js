@@ -31,8 +31,8 @@ Module(Argon, 'Association')({
             association.targetModel.read({
                 conditions : conditions
             }, 
-            function(data){
-                if (callback){
+            function (data) {
+                if (callback) {
                     callback(data[0]);
                 }
             });
@@ -66,8 +66,8 @@ Module(Argon, 'Association')({
             association.targetModel.read({
                 conditions : conditions
             }, 
-            function(data){
-                if (callback){
+            function (data) {
+                if (callback) {
                     callback(data);
                 }
             });
@@ -94,15 +94,15 @@ Module(Argon, 'Association')({
             targetProperty : config.targetProperty || 'id'
         };
         
-        this.prototype[association.name] = function(callback){
+        this.prototype[association.name] = function (callback) {
             var conditions = {};
             conditions[association.targetProperty] = this[association.localProperty];
             
             association.targetModel.read({
                 conditions : conditions
             }, 
-            function(data){
-                if (callback){
+            function (data) {
+                if (callback) {
                     callback(data[0]);
                 }
             });

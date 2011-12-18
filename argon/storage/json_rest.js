@@ -113,7 +113,7 @@ Class(Argon.Storage, 'JsonRest')({
     @return Argon.Storage.JsonRest
     **/
     _sendRequest : function _sendRequest(params, callback) {
-        var storage, ajaxConfig, response;
+        var storage, ajaxConfig;
 
         storage = this;
 
@@ -130,11 +130,11 @@ Class(Argon.Storage, 'JsonRest')({
         };
 
         if (ajaxConfig.type != Argon.Storage.JsonRest.REQUEST_TYPE_GET) {
-            ajaxConfig.data = params.data
+            ajaxConfig.data = params.data;
         }
 
         if (ajaxConfig.type == this.REQUEST_TYPE_PUT || ajaxConfig.type == this.REQUEST_TYPE_DELETE) {
-            var newType       = ajaxConfig.type;
+            var newType = ajaxConfig.type;
             ajaxConfig.beforeSend = function(xhr) {
                 xhr.setRequestHeader("X-Http-Method-Override", newType);
             };
@@ -156,7 +156,7 @@ Class(Argon.Storage, 'JsonRest')({
     @argument callback
     **/
     _processResponse : function (xhr, message, callback) {
-        var response, i;
+        var response;
 
         switch (xhr.status) {
             case this.RESPONSE_OK:
@@ -240,7 +240,7 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         post : function (params, callback) {
 
-            var requestConfig, storage;
+            var i, requestConfig, storage;
 
             storage = this;
 
@@ -274,7 +274,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument callback <optional> [Function]
         **/
         get : function (params, callback) {
-            var found, storedData, property, requestConfig, property, storage;
+            var found, storedData, property, requestConfig, storage;
 
             storage = this;
             callback = callback || function(){};
