@@ -61,7 +61,7 @@ Te.suite('Associations')(function(){
             var instance = new spec.registry.ExampleModel(data[0]);
             instance.model2(function(data){
                 spec.assert(data.length).toBeGreaterThan(0);
-                spec.assert(data[0].exampleModelId).toEqual(instance.id);
+                spec.assert(data[0].exampleModelId).toEqual(instance.getProperty('id'));
                 spec.completed();
             });
         });
@@ -72,7 +72,7 @@ Te.suite('Associations')(function(){
             var instance = new spec.registry.ExampleModel2(data[0]);
             instance.model(function(data){
                 spec.assert(data).toBeTruthy();
-                spec.assert(data.id).toEqual(instance.exampleModelId);
+                spec.assert(data.id).toEqual(instance.getProperty('exampleModelId'));
                 spec.completed();
             });
         });

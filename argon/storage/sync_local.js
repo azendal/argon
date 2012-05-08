@@ -1,10 +1,11 @@
+
 /**
 Local Storage engine for Argon
 The implementation is not really coupled with Argon but it was designed to be used with it
 @class Local
 @namespace Argon.Storage
 **/
-Class(Argon.Storage, 'Local')({
+Class(Argon.Storage, 'SyncLocal')({
     /**
     Instance properties container
     @attribute prototype <public> [Object]
@@ -31,40 +32,31 @@ Class(Argon.Storage, 'Local')({
         Creates new data on the storage instance
         @method post <public>
         @argument data <required> [Object] the data to create on the storage instance
-        @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        post    : function (data, callback) {
-            
-            callback = callback || function(){};
+        post    : function (data) {
             
             if ((typeof data) === 'undefined' || data === null) {
-               callback(data);
-               return this;
+               return [];
             }
             
             data.id = this._generateUid();
             this.storage[data.id] = data;
-            callback(data);
-            
-            return this;
+
+            return data;
         },
         
         /**
         Retrieves a set of data on the storage instance
         @method get <public>
         @argument query <required> [Object] the query to the elements that must be updated
-        @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        get     : function (query, callback) {
+        get     : function (query) {
             var found, storedData, property, storageKey;
             
-            callback = callback || function(){};
-            
             if ((typeof query) === 'undefined' || query === null) {
-               callback(null);
-               return this;
+               return [];
             }
             
             found      = [];
@@ -106,63 +98,51 @@ Class(Argon.Storage, 'Local')({
             }
             
             if (returnFiltered == true) {
-               callback(filtered);
+               return filtered;
             }
             else {
-                callback(found);
+               return found;
             }
             
-            return this;
         },
 
         /**
         Updates a set of data on the storage instance
         @method put <public>
         @argument query <required> [Object] the query to the elements that must be updated
-        @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        put     : function (data, callback) {
-            
-            callback = callback || function(){};
+        put     : function (data) {
             
             if ((typeof data) === 'undefined' || data === null) {
-               callback(data);
-               return this;
+               return data;
             }
             
             this.storage[data.id] = data;
-            callback(this.storage[data.id]);
+            
+            return this.storage[data.id];
         },
         
         /**
         Removes a set of elements from the storage
         @method remove <public>
         @argument query <required> [Object] the query to the elements that must be removed
-        @argument callback [Function] The function that will be executed when the process ends
-        @return [Object] this
+        @return [Null] null
         **/
-        remove  : function (query, callback) {
+        remove  : function (query) {
             var storageInstance = this;
             
-            callback = callback || function(){};
-            
             if ((typeof query) === 'undefined' || query === null) {
-               window.setTimeout(function(){
-                   callback(null);
-               }, 0);
-               return this;
+               return null;
             }
             
-            this.get(query, function(data){
-                var i;
-                for (i=0; i < data.length; i++) {
-                    delete storageInstance.storage[data[i].id];
-                };
-                callback();
-            });
+            var data = this.get(query);
+            var i;
+            for (i=0; i < data.length; i++) {
+                delete storageInstance.storage[data[i].id];
+            };
             
-            return this;
+            return null;
         },
 
         /**

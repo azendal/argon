@@ -1,14 +1,15 @@
-Te.suite('Model')(function(){
+
+Te.suite('SyncModel')(function(){
     this.beforeEach(function(){
-        this.registry.ExampleModel = Class().includes(Argon.Model)({
-            storage : (new Argon.Storage.Local())
+        this.registry.ExampleModel = Class().includes(Argon.SyncModel)({
+            storage : (new Argon.Storage.SyncLocal())
         });
 
         this.registry.ExampleModel.className = 'ExampleModel';
     });
 
-    this.specify('Model inherit from Argon.Model')(function(){
-        this.assert(this.registry.ExampleModel.__includedModules.indexOf(Argon.Model)).toBeGreaterThan(-1);
+    this.specify('Model inherit from Argon.SyncModel')(function(){
+        this.assert(this.registry.ExampleModel.__includedModules.indexOf(Argon.SyncModel)).toBeGreaterThan(-1);
         this.completed();
     });
 
@@ -21,8 +22,8 @@ Te.suite('Model')(function(){
         var Model1, Model2;
 
         Model1 = this.registry.ExampleModel;
-        Model2 = Class().includes(Argon.Model)({
-            storage : (new Argon.Storage.Local())
+        Model2 = Class().includes(Argon.SyncModel)({
+            storage : (new Argon.Storage.SyncLocal())
         });
 
         this.registry.ExampleModel.className = 'Model2';
@@ -55,38 +56,33 @@ Te.suite('Model')(function(){
             });
 
             this.specify('retrieve data with find method')(function(spec){
-                this.registry.ExampleModel.find('avfskgasd', function(data){
-                    spec.assert(data.length).toBeGreaterThan(0);
-                    spec.assert(data[0].data).toEqual(3);
-                    spec.completed();
-                });
+                var data = this.registry.ExampleModel.find('avfskgasd');
+                spec.assert(data.length).toBeGreaterThan(0);
+                spec.assert(data[0].data).toEqual(3);
+                spec.completed();
             });
 
             this.specify('retrieve data with findBy method')(function(spec){
-                this.registry.ExampleModel.findBy("data", 2, function(data){
-                    spec.assert(data.length).toBeGreaterThan(0);
-                    spec.assert(data[0].id).toEqual('asdxsgasd');
-                    spec.completed();
-                });
+                var data = this.registry.ExampleModel.findBy("data", 2);
+                spec.assert(data.length).toBeGreaterThan(0);
+                spec.assert(data[0].id).toEqual('asdxsgasd');
+                spec.completed();
             });
 
             this.specify('retrieve data with all method')(function(spec){
-                this.registry.ExampleModel.all(function(data){
-                    spec.assert(data).toBeInstanceOf(Array);
-                    spec.assert(data.length).toBeGreaterThan(0);
-                    spec.completed();
-                });
+                var data = this.registry.ExampleModel.all();
+                spec.assert(data).toBeInstanceOf(Array);
+                spec.assert(data.length).toBeGreaterThan(0);
+                spec.completed();
             });
         });
 
         this.describe('saving data with the model')(function(){
 
             this.specify('saves record to storage')(function(spec){
-
-                this.registry.exampleModel.save(function(data){
-                    spec.assert(data.id).toBeTruthy();
-                    spec.completed();
-                });
+                var data = this.registry.exampleModel.save();
+                spec.assert(data.id).toBeTruthy();
+                spec.completed();
 
             });
 
@@ -97,33 +93,12 @@ Te.suite('Model')(function(){
                 ExampleModel = this.registry.ExampleModel;
 
 
-                em.save(function(data){
-                    em.setProperty('x', 2);
-                    em.save(function(){
-                        ExampleModel.read({}, function(examples){
-                            spec.assert(examples[0].x).toEqual(2);
-                            spec.completed();
-                        });
-                    });
-                });
-
-            });
-
-            this.specify('saves modifications to storage')(function(spec){
-                var em, ExampleModel;
-
-                em           = this.registry.exampleModel;
-                ExampleModel = this.registry.ExampleModel;
-
-                em.save(function(data){
-                    em.setProperty('x', 2);
-                    em.save(function(){
-                        ExampleModel.read({}, function(examples){
-                            spec.assert(examples[0].x).toEqual(2);
-                            spec.completed();
-                        });
-                    });
-                });
+                var data = em.save();
+                em.setProperty('x', 2);
+                em.save();
+                var examples = ExampleModel.read({});
+                spec.assert(examples[0].x).toEqual(2);
+                spec.completed();
             });
 
             this.specify('destroy removes the instance from storage')(function(spec){
@@ -132,14 +107,11 @@ Te.suite('Model')(function(){
                 em           = this.registry.exampleModel;
                 ExampleModel = this.registry.ExampleModel;
 
-                em.save(function(){
-                    em.destroy(function(){
-                        ExampleModel.read({},function(data){
-                            spec.assert(data.length).toEqual(0);
-                            spec.completed();
-                        });
-                    });
-                });
+                em.save();
+                em.destroy();
+                var data = ExampleModel.read({});
+                spec.assert(data.length).toEqual(0);
+                spec.completed();
 
             });
 
@@ -156,15 +128,14 @@ Te.suite('Model')(function(){
                    executedEvent = true;
                 });
 
-                this.registry.ExampleModel.read({}, function(){
-                    spec.assert(executedEvent).toBe(true);
-                    spec.completed();
-                });
+                this.registry.ExampleModel.read({});
+                spec.assert(executedEvent).toBe(true);
+                spec.completed();
             });
 
             this.describe('Model validations system')(function(){
-                var ValidationModel = Class().includes(Argon.Model)({
-                    storage : (new Argon.Storage.Local()),
+                var ValidationModel = Class().includes(Argon.SyncModel)({
+                    storage : (new Argon.Storage.SyncLocal()),
                     validations : {
                         presenceOf : {
                             validate : function() {
@@ -193,8 +164,8 @@ Te.suite('Model')(function(){
 
         this.describe('Model caching system')(function () {
             this.beforeEach(function () {
-                this.registry.CachingModel = Class().includes(Argon.Model)({
-                    storage : (new Argon.Storage.Local())
+                this.registry.CachingModel = Class().includes(Argon.SyncModel)({
+                    storage : (new Argon.Storage.SyncLocal())
                 });
                 this.registry.CachingModel.storage.storage = {
                     'asddsgasd' : {id : 'asddsgasd', data : 1},
@@ -202,33 +173,29 @@ Te.suite('Model')(function(){
                     'avfskgasd' : {id : 'avfskgasd', data : 3},
                     'w29xsgasd' : {id : 'w29xsgasd', data : 4}
                 };
-                this.registry.CachingModel.all(function (data) {
-                  this._cache.all = {data : "all cached!", cachedAt : (new Date())};
-                  this._cache.find_asddsgasd = {data : "find cached!", cachedAt : (new Date())};
-                  this._cache.findBy_id_asddsgasd = {data : "findBy cached!", cachedAt : (new Date())};
-                });
+                var data = this.registry.CachingModel.all();
+                this.registry.CachingModel._cache.all = {data : "all cached!", cachedAt : (new Date())};
+                this.registry.CachingModel._cache.find_asddsgasd = {data : "find cached!", cachedAt : (new Date())};
+                this.registry.CachingModel._cache.findBy_id_asddsgasd = {data : "findBy cached!", cachedAt : (new Date())};
             });
 
             this.specify('Should read all from cache')(function (spec) {
-                this.registry.CachingModel.all(function (data) {
-                    spec.assert(data).toEqual("all cached!");
-                    spec.completed();
-                });
+                var data = this.registry.CachingModel.all();
+                spec.assert(data).toEqual("all cached!");
+                spec.completed();
             });
 
             this.specify('Should find from cache')(function (spec) {
-                this.registry.CachingModel.find('asddsgasd',function (data) {
-                    spec.assert(data).toEqual("find cached!");
-                    spec.completed();
-                });
+                var data = this.registry.CachingModel.find('asddsgasd');
+                spec.assert(data).toEqual("find cached!");
+                spec.completed();
             });
 
 
             this.specify('Should findBy from cache')(function (spec) {
-                this.registry.CachingModel.findBy('id','asddsgasd',function (data) {
-                    spec.assert(data).toEqual("findBy cached!");
-                    spec.completed();
-                });
+                var data = this.registry.CachingModel.findBy('id','asddsgasd');
+                spec.assert(data).toEqual("findBy cached!");
+                spec.completed();
             });
         });
     });

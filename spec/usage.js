@@ -10,14 +10,14 @@ Te.suite('Argon Usage')(function() {
             validations : {
                 username : {
                     validate : function(){
-                        return this.hasOwnProperty('username') && this.username.length > 0;
+                        return this.hasOwnProperty('username') && this.getProperty('username').length > 0;
                     },
                     message : 'username is required'
                 },
                 
                 password : {
                     validate : function(){
-                        return this.hasOwnProperty('password') && this.password.length > 5;
+                        return this.hasOwnProperty('password') && this.getProperty('password').length > 5;
                     },
                     message : 'password is required'
                 }
@@ -25,9 +25,10 @@ Te.suite('Argon Usage')(function() {
         });
         
         Scope.User.create({username:'fernando', password:'123456'}, function(user){
+            user = new Scope.User(user);
             spec.assert(user.errors.length).toEqual(0);
-            spec.assert(user.username).toEqual('fernando');
-            spec.assert(user.password).toEqual('123456');
+            spec.assert(user.getProperty('username')).toEqual('fernando');
+            spec.assert(user.getProperty('password')).toEqual('123456');
             
             user.bind('change:password', function(){
                 console.log('password changed');
@@ -35,7 +36,8 @@ Te.suite('Argon Usage')(function() {
             
             user.setProperty('password', '1234567');
             user.save(function(user){
-                spec.assert(user.password).toEqual('1234567');
+                user = new Scope.User(user)
+                spec.assert(user.getProperty('password')).toEqual('1234567');
                 spec.completed();
             });
         });
