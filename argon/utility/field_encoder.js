@@ -14,7 +14,7 @@ Class("FieldEncoder")({
 			for( property in params ) {
 				if ( params.hasOwnProperty (property) ) {
 					if ( (typeof params[property] !== 'undefined') && (typeof params[property] !== 'function') ) {
-						data[obj.toString().underscore()] = this.encode(params[property]);
+						data[property.toString().underscore()] = this.encode(params[property]);
 					}
 				}
 			}
