@@ -58,7 +58,7 @@ Class(Argon.Storage, 'Local')({
         @return [Array]
         **/
         get     : function (query, callback) {
-            var found, storedData, property, storageKey;
+            var found, storedData, property;
             
             callback = callback || function(){};
             
@@ -105,7 +105,7 @@ Class(Argon.Storage, 'Local')({
                 }
             }
             
-            if (returnFiltered == true) {
+            if (returnFiltered === true) {
                callback(filtered);
             }
             else {
@@ -158,7 +158,7 @@ Class(Argon.Storage, 'Local')({
                 var i;
                 for (i=0; i < data.length; i++) {
                     delete storageInstance.storage[data[i].id];
-                };
+                }
                 callback();
             });
             
@@ -180,14 +180,16 @@ Class(Argon.Storage, 'Local')({
         **/
         _generateUid : (function () {
             var getUid = function(length){
+                var i, uid, min, max;
+                
                 length = length || 32;
-                var str = '';
-                var min = 0;
-                var max = 14;
-                for(var i = 0; i < length; i++){
-                    str += getUid.codes[ Math.floor(Math.random() * (max - min + 1)) + min ];
+                uid = '';
+                min = 0;
+                max = 14;
+                for(i = 0; i < length; i++){
+                    uid += getUid.codes[ Math.floor(Math.random() * (max - min + 1)) + min ];
                 }
-                return str;
+                return uid;
             };
 
             getUid.codes  = [0, 1, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];

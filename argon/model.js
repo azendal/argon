@@ -40,6 +40,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model]
     **/
     create  : function (data, callback) {
+        var model;
         this.dispatch('beforeCreate');
         model = new this(data);
         model.save(callback, function (instance) {
@@ -57,7 +58,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model]
     **/
     read    : function (query, callback) {
-        var data, Model;
+        var Model;
         query = query || {};
 
         Model = this;

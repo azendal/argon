@@ -1,20 +1,20 @@
 Class("FieldEncoder")({
-	encode : function(params) {
+	encode : function (params) {
+        var data, property, className;
+        
 	    if(params === null){
 	        return params;
 	    }
-	    var data;
-		var obj;
-	    var that = this;
+        
 		className = Object.prototype.toString.call(params).replace('[object ', '').replace(']', '');
 		
 	    if ( className == 'Object' ) {
 	        data = {};
 			
-			for( obj in params ) {
-				if ( params.hasOwnProperty ( obj ) ) {
-					if ( (typeof params[obj] !== 'undefined') && (typeof params[obj] !== 'function') ) {
-						data[obj.toString().underscore()] = that.encode(params[obj]);
+			for( property in params ) {
+				if ( params.hasOwnProperty (property) ) {
+					if ( (typeof params[property] !== 'undefined') && (typeof params[property] !== 'function') ) {
+						data[obj.toString().underscore()] = this.encode(params[property]);
 					}
 				}
 			}
