@@ -45,7 +45,6 @@ Class("Instantiator")({
         return result;
     },
 
-
     decodeFields : function(element) {
         var properties = {};
         var keyName;
