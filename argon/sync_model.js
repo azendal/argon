@@ -1,8 +1,8 @@
-
 /**
-This is the default Model functionality that Argon provides. Models include
-Events and Validations. All packaged in a module you can include on your objects.
-@module Model
+A synchronous variation from the original asynchronous variation of Model.
+Models include Events and Validations. All packaged in a module you can include
+on your objects.
+@module SyncModel
 @namespace Argon
 @includes CustomEventSupport
 @includes ValidationSupport
@@ -52,7 +52,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
     Builds a new instance of Argon Model from storage.
     @method read <public, static>
     @argument query <required> [Object] conditions to match.
-    @argument callback <optional> [function] function to handle data.
     @return [Argon.Model]
     **/
     read    : function (query) {
@@ -98,7 +97,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
     /**
     Fetches all records of a given Model and creates the instances.
     @method all <public, static>
-    @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
     all : function () {
@@ -123,7 +121,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
     Fetches one record of a given Model and creates the instance.
     @method find <public, static>
     @argument id <required> [Object] the id of the record.
-    @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
     find : function (id) {
@@ -144,7 +141,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
     @method findBy <public, static>
     @argument attribute <required> [String] the attribute to match.
     @argument value <required> [String] the value to match in the attribute.
-    @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
     findBy : function (property, value) {
@@ -248,7 +244,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
         /**
         Saves the model to storage.
         @method save <public>
-        @argument callback <required> [Function] function to manage response.
         @return Noting.
         **/
         save             : function () {
@@ -276,7 +271,6 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
         /**
         Removes a record from storage.
         @method destroy <public>
-        @argument callback [Function] function to manage response.
         @return Noting.
         **/
         destroy          : function () {

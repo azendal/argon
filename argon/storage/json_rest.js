@@ -67,7 +67,7 @@ Class(Argon.Storage, 'JsonRest')({
     Holds the list of processors that will be running to format and sanitize the response
     returned from the JSON service provider.
 
-    All the processors must be syncronous for now so make sure that the return values are the result
+    All the processors must be synchronous for now so make sure that the return values are the result
     of the processed data.
 
     Example: A simple attribute sanitizer.
@@ -102,6 +102,30 @@ Class(Argon.Storage, 'JsonRest')({
     **/
     processors : [],
 
+    /**
+    Holds the list of preprocessors that will run to format, sanitize the data before sending
+    it to the storage service.
+
+    All the preprocessors must be synchronous for now so make sure that the return values are
+    the intended results.
+
+    Example : A simple dasherizer
+
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var sanitizedData, property;
+
+            sanitizedData = {};
+
+            for (property in data) {
+                if (data.hasOwnProperty(property)) {
+                    sanitizedData[property.dasherize()] = data[property];
+                }
+            }
+
+            return sanitizedData;
+        });
+
+    **/
 	preprocessors : [],
 
     /**
@@ -195,8 +219,19 @@ Class(Argon.Storage, 'JsonRest')({
     @prototype
     **/
     prototype : {
+
+        /**
+        Holds the processors that are specific only for the instance of the storage
+        @property processors <public> [Array] (null)
+        **/
         processors : null,
+
+        /**
+        Holds the preprocessors that are specific only for the instance of the storage
+        @property preprocessors <public> [Array] (null)
+        **/
 		preprocessors : null,
+        
         /**
         Contains the resource routes for the model.
         every property matches the name of a method that will do an operation with the resource
@@ -233,7 +268,7 @@ Class(Argon.Storage, 'JsonRest')({
         },
 
         /**
-        pushes the instance to the storage service
+        Pushes the instance to the storage service
         @method post <public>
         @argument params <optional> [Object] the data to post, generally this comes from a model
         @argument callback <optional> [Function]
