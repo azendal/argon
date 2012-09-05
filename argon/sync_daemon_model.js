@@ -28,7 +28,7 @@ Module(Argon, 'SyncDaemonSupport')({
                 model.dispatch('afterSave');
             }
             else {
-                this.constructor.storage.post(this);
+                //this.constructor.storage.post(this);
                 SyncDaemon.push(this);
                 model.dispatch('afterSave');
             }
