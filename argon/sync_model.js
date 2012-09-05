@@ -180,7 +180,7 @@ Module(Argon, 'SyncModel').includes(CustomEventSupport, ValidationSupport)({
             var property;
 
             this.eventListeners = [];
-
+            
             for (property in properties) {
                 if (properties.hasOwnProperty(property)) {
                     this[property] = properties[property];

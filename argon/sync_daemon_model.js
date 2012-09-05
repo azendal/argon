@@ -284,7 +284,7 @@ Module(Argon, 'SyncDaemonModel').includes(CustomEventSupport, ValidationSupport)
             //    conditions : { id : this.getProperty('id') }
             //});
             //model.setProperty('id', null);
-
+            this.willDestroy = true;
             SyncDaemon.push(this);
             model.dispatch('afterDestroy');
             return null;
