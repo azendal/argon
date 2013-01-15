@@ -132,35 +132,34 @@ Class(Argon.Storage, 'JsonRest')({
     Internal implementation of the communication sequence with the service
     All requests at some point rely on this method to format the data and send the request to the service
     @method _sendRequest <public, static> [Function]
-    @argument params
+    @argument requestObj
     @argument callback the function to execute when the process finishes
     @return Argon.Storage.JsonRest
     **/
-    _sendRequest : function _sendRequest(params, callback) {
-        var storage, ajaxConfig;
+    _sendRequest : function _sendRequest(requestObj, callback) {
+        var Storage, ajaxConfig;
 
-        storage = this;
+        Storage = this;
 
         ajaxConfig = {
-            url         : params.url,
-            type        : params.type || this.REQUEST_TYPE_GET,
-            contentType : params.contentType || 'application/json',
+            url         : requestObj.config.url,
+            type        : requestObj.config.type || this.REQUEST_TYPE_GET,
+//            contentType : requestObj.config.contentType || 'application/json',
             global      : false,
             async       : true,
             cache       : false,
             complete    : function(xhr, message){
-                storage._processResponse(xhr, message, callback);
+                Storage._processResponse(xhr, message, callback);
             }
         };
 
         if (ajaxConfig.type != Argon.Storage.JsonRest.REQUEST_TYPE_GET) {
-            ajaxConfig.data = params.data;
+            ajaxConfig.data = requestObj.data;
         }
 
         if (ajaxConfig.type == this.REQUEST_TYPE_PUT || ajaxConfig.type == this.REQUEST_TYPE_DELETE) {
-            var newType = ajaxConfig.type;
             ajaxConfig.beforeSend = function(xhr) {
-                xhr.setRequestHeader("X-Http-Method-Override", newType);
+                xhr.setRequestHeader("X-Http-Method-Override", ajaxConfig.type);
             };
             ajaxConfig.type = this.REQUEST_TYPE_POST;
         }
@@ -238,8 +237,9 @@ Class(Argon.Storage, 'JsonRest')({
         @attribute url <public> [Object] ({post: '', get: '', put: '', remove: ''})
         **/
         url : {
+            all    : '',
+            show   : '',
             post   : '',
-            get    : '',
             put    : '',
             remove : ''
         },
@@ -270,10 +270,10 @@ Class(Argon.Storage, 'JsonRest')({
         /**
         Pushes the instance to the storage service
         @method post <public>
-        @argument params <optional> [Object] the data to post, generally this comes from a model
+        @argument requestObj <optional> [Object] the data to post, generally this comes from a model
         @argument callback <optional> [Function]
         **/
-        post : function (params, callback) {
+        post : function (requestObj, callback) {
 
             var i, requestConfig, storage;
 
@@ -281,18 +281,15 @@ Class(Argon.Storage, 'JsonRest')({
 
             callback = callback || function(){};
 
-            if ((typeof params) === 'undefined' || params === null) {
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
             }
 
-            requestConfig = {
-                url  : this.url.post,
-                type : this.constructor.REQUEST_TYPE_POST,
-                data : params.data
-            };
+            requestObj.config.url = requestObj.config.url || this.url.post;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_POST;
 
-            this.constructor._sendRequest(requestConfig, function(data){
+            this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
                     data = storage.processors[i](data);
                 }
@@ -305,32 +302,62 @@ Class(Argon.Storage, 'JsonRest')({
         /**
         Reads from the resource
         @method get <public>
-        @argument params <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
+        @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
         @argument callback <optional> [Function]
         **/
-        get : function (params, callback) {
-            var found, storedData, property, requestConfig, storage;
+        get : function (requestObj, callback) {
+            var i, found, storedData, property, requestConfig, storage;
 
             storage = this;
             callback = callback || function(){};
 
 			for (i = 0; i < storage.preprocessors.length; i++) {
-                params = storage.preprocessors[i](params);
+                requestObj.data = storage.preprocessors[i](requestObj.data);
             }
 
-            if ((typeof params) === 'undefined' || params === null) {
+            if (typeof requestObj === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
             }
 
-            requestConfig = {
-                url    : (params.request || {}).url || this.url.get,
-                type   : this.constructor.REQUEST_TYPE_GET,
-                data   : params.data || {},
-                query  : params.query || {}
-            };
+            requestObj.config.url = requestObj.config.url || this.url.get;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 
-            this.constructor._sendRequest(requestConfig, function(data){
+            this.constructor._sendRequest(requestObj, function(data){
+                for (i = 0; i < storage.processors.length; i++) {
+                    data = storage.processors[i](data);
+                }
+                callback(data);
+            });
+
+            return this;
+        },
+
+        /**
+        Reads from the resource
+        @method get <public>
+        @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
+        @argument callback <optional> [Function]
+        **/
+        show : function (requestObj, callback) {
+            var i, found, storedData, property, requestConfig, storage;
+
+            storage = this;
+            callback = callback || function(){};
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data);
+            }
+
+            if (typeof requestObj === 'undefined' || requestObj === null) {
+                callback(null);
+                return this;
+            }
+
+            requestObj.config.url = requestObj.config.url || this.url.show;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
+
+            this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
                     data = storage.processors[i](data);
                 }
@@ -346,29 +373,25 @@ Class(Argon.Storage, 'JsonRest')({
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
-        put : function (params, callback) {
+        put : function (requestObj, callback) {
 
-            var found, storedData, requestConfig, property, storage;
+            var found, storedData, property, storage;
 
             storage = this;
 
             callback = callback || function(){};
 
-            if ((typeof params) === 'undefined' || params === null) {
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
             }
 
-            requestConfig = {
-                url    : (params.request || {}).url || this.url.put,
-                type   : this.constructor.REQUEST_TYPE_PUT,
-                data   : params.data || {},
-                query  : params.query || {}
-            };
+            requestObj.config.url = requestObj.config.url || this.url.put;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_PUT;
 
-            this.constructor._sendRequest(requestConfig, function(data){
+            this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    requestObj.data = storage.processors[i](requestObj.data);
                 }
                 callback(data);
             });
@@ -386,7 +409,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
-        remove : function (query, callback) {
+        remove : function (requestObj, callback) {
 
             var requestConfig, storage;
 
@@ -394,20 +417,17 @@ Class(Argon.Storage, 'JsonRest')({
 
             callback = callback || function(){};
 
-            if ((typeof query) === 'undefined' || query === null) {
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
             }
 
-            requestConfig = {
-                url  : this.url.remove,
-                type : 'DELETE',
-                data : query
-            };
+            requestObj.config.url = requestObj.config.url || this.url.remove;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_PUT;
 
-            this.constructor._sendRequest(requestConfig, function(data){
+            this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    requestObj.data = storage.processors[i](requestObj.data);
                 }
                 callback(data);
             });

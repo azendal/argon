@@ -14,12 +14,12 @@ Te.suite('Local Storage')(function(){
         });
         
         this.specify('calling with data')(function(){
-            plainStorage.post('');
+            plainStorage.post({data : ''});
             this.completed();
         });
         
         this.specify('calling without callback')(function(){
-            plainStorage.post('');
+            plainStorage.post({data:''});
             this.completed();
         });
         
@@ -34,7 +34,7 @@ Te.suite('Local Storage')(function(){
     this.describe('get')(function(){
         
         this.specify('calling without callback')(function(){
-            plainStorage.get();
+            plainStorage.get({});
             this.completed();
         });
         
@@ -58,12 +58,12 @@ Te.suite('Local Storage')(function(){
         });
         
         this.specify('calling with data')(function(){
-            plainStorage.put('');
+            plainStorage.put({data : ''});
             this.completed();
         });
         
         this.specify('calling without callback')(function(){
-            plainStorage.put('');
+            plainStorage.put({data : ''});
             this.completed();
         });
         
@@ -76,7 +76,7 @@ Te.suite('Local Storage')(function(){
     
     this.describe('remove')(function(){
         this.specify('calling without callback')(function(){
-            plainStorage.remove();
+            plainStorage.remove({});
             this.completed();
         });
         

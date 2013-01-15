@@ -140,7 +140,7 @@ var respondWith = function(res, content){
 };
 
 server.on('request', processRequest);
-server.listen(4000);
+server.listen(4040);
 
 console.log('Server running on port:4000');
 console.log('waiting...');

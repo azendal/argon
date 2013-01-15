@@ -1,5 +1,5 @@
-Class("FieldEncoder")({
-	encode : function (params) {
+Class("PropertyEncoder")({
+	encode : function encode(params) {
         var data, property, className;
         
 	    if(params === null){
@@ -11,20 +11,19 @@ Class("FieldEncoder")({
 	    if ( className == 'Object' ) {
 	        data = {};
 			
-			for( property in params ) {
-				if ( params.hasOwnProperty (property) ) {
-					if ( (typeof params[property] !== 'undefined') && (typeof params[property] !== 'function') ) {
-						data[property.toString().underscore()] = this.encode(params[property]);
-					}
-				}
-			}
+            Object.keys(params).forEach(function (property) {
+                if ( (typeof params[property] !== 'undefined') && (typeof params[property] !== 'function') ) {
+                    data[property.toString().underscore()] = this.encode(params[property]);
+                }
+            }, this);
+
 	    } else if (className == 'Array') {
-	        data = [];
-			var arrayIndex = null;
-			for ( arrayIndex = 0; arrayIndex > params.length; arrayIndex++ ) {
-				data.push( that.encode(param[arrayIndex]));
-			}
-	    } else{
+	        
+            data = params.map(function (value) {
+                return this.encode(value);
+            }, this);
+	    
+        } else{
 	        data = params;
 	    }
 

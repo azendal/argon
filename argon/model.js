@@ -16,30 +16,12 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     storage : null,
     
     /**
-    Contains the caching data for the model
-    @property _cache <private> [Object] ({})
-    **/
-    _cache  : {},
-    
-    /**
-    Configures the caching expire times
-    By default this are cached forever, so the possible values for this is:
-    null cache forever
-    Number (milliseconds) the time to live for the caching key
-    @property _cacheTimeToLive <private> [Object] ({all:null,instance:null})
-    **/
-    _cacheTimeToLive : {
-        all      : null,
-        instance : null
-    },
-    
-    /**
     Builds a new instance of Argon Model and saves to storage.
     @method create <public, static>
     @argument data <required> [Object] the attributes of the model.
     @return [Argon.Model]
     **/
-    create  : function (data, callback) {
+    create : function create(data, callback) {
         var model;
         this.dispatch('beforeCreate');
         model = new this(data);
@@ -57,7 +39,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @argument callback <optional> [function] function to handle data.
     @return [Argon.Model]
     **/
-    read    : function (query, callback) {
+    read : function read(query, callback) {
         var Model;
         query = query || {};
 
@@ -67,7 +49,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
 
         query.className = this.className;
 
-        this.storage.get(query, function(data){
+        this.storage.get({config : {}, conditions : query}, function(data){
             Model.dispatch('afterRead');
             if (callback) {
                 callback(data);
@@ -78,56 +60,20 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     },
     
     /**
-    Tells if the given cache key is present in the cache object.
-    @method isCached <public, static>
-    @argument key <required> [String] key to look for.
-    @return [Boolean].
-    **/
-    isCached : function (key) {
-        return this._cache.hasOwnProperty(key) && this._cache[key].data != 'undefined';
-    },
-    
-    /**
-    Tells if the given cache key is already expired.
-    @method isCacheExpired <public, static>
-    @argument key <required> [String] key to look for.
-    @argument timeKey <required> [String] time key to look for.
-    @return [Boolean].
-    **/
-    isCacheExpired : function(key, timeKey) {
-        if (this._cacheTimeToLive.hasOwnProperty(timeKey)) {
-            return this._cacheTimeToLive[timeKey] !== null && ((new Date() - this._cache[key].cachedAt) > this._cacheTimeToLive[timeKey]);
-        }
-        return false;
-    },
-    
-    /**
     Fetches all records of a given Model and creates the instances.
     @method all <public, static>
     @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
-    all : function (callback) {
+    all : function all(callback) {
         var Model, data;
         
         Model = this;
-        
-        if( this.isCached('all') && !this.isCacheExpired('all', 'all') ) {
-            data = this._cache.all.data;
+        this.read({config : {}}, function (data) {
             if (callback) {
-                callback.call(this, data);
+                callback.call(Model, data);
             }
-        } else {
-            this.read({}, function (data) {
-                if (callback) {
-                    callback.call(Model, data);
-                }
-                Model._cache.all = {
-                    cachedAt : (new Date()),
-                    data     : data
-                };
-            });
-        }
+        });
         
         return this;
     },
@@ -141,52 +87,20 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     **/
     find : function (id, callback) {
         var data;
-        var key = 'find_' + id.toString();
-        if (this.isCached(key) && !this.isCacheExpired(key,'instance')) {
-            data = this._cache[key].data;
-            if (callback) {
-                callback.call(this, data);
+        var Model = this;
+        this.dispatch('beforeRead');
+        this.storage.show({config : {
+                url : this.storage.url.show.replace('{:id}', id)
+            },
+            urlData : {
+                id : id
             }
-        } else {
-            var that = this;
-            this.read({conditions : {id : id}}, function (data) {
-                if (callback) {
-                    callback.call(that, data);
-                }
-                that._cache[key] = { data : data, cachedAt : (new Date())};
-            });
-        }
-        return this;
-    },
-    
-    /**
-    Fetches one record of a given Model and creates the instance.
-    @method findBy <public, static>
-    @argument attribute <required> [String] the attribute to match.
-    @argument value <required> [String] the value to match in the attribute.
-    @argument callback <optional> [Function] method to handle data.
-    @return [Argon.Model].
-    **/
-    findBy : function (property, value, callback) {
-        var customConditions, key, data;
-        customConditions = {};
-        customConditions[property] = value;
-        key = 'findBy_' + property + '_' + value;
-
-        if (this.isCached(key) && !this.isCacheExpired(key,'instance')) {
-            data = this._cache[key].data;
+        }, function (data) {
+            Model.dispatch('afterRead');
             if (callback) {
-                callback.call(this, data);
+                callback.call(Model, data);
             }
-        } else {
-            var that = this;
-            this.read({conditions : customConditions}, function (data) {
-                if (callback) {
-                    callback.call(that, data);
-                }
-                that._cache[key] = { data : data, cachedAt : (new Date())};
-            });
-        }
+        });
         return this;
     },
     
@@ -195,22 +109,20 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         Contain the errors for the model instance
         @property errors <public> [Array] ([])
         **/
-        errors           : [],
+        errors : [],
 
         /**
         Object initializer, this method server as the real constructor
         @method init <public>
         @argument properties <optional> [Object] ({}) the attributes for the model isntance
         **/
-        init             : function (properties) {
-            var property;
-
+        init : function init(properties) {
             this.eventListeners = [];
 
-            for (property in properties) {
-                if (properties.hasOwnProperty(property)) {
+            if (typeof properties !== 'undefined') {
+                Object.keys(properties).forEach(function (property) {
                     this[property] = properties[property];
-                }
+                }, this);
             }
 
             return this;
@@ -222,8 +134,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @argument property <required> [String] the property to expose.
         @return [Object] the property value.
         **/
-        getProperty      : function (property) {
-          return this[property];
+        getProperty : function getProperty(property) {
+            return this[property];
         },
         
         /**
@@ -233,7 +145,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @argument newValue <required> [String] the value for the property.
         @return [Object] instance of the model.
         **/
-        setProperty      : function (property, newValue) {
+        setProperty : function setProperty(property, newValue) {
             var originalValue;
 
             if (newValue != originalValue) {
@@ -255,14 +167,10 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @argument properties <required> [Object] the properties collection to write.
         @return [Object] instance of the model.
         **/
-        updateProperties : function (properties) {
-            var property;
-
-            for (property in properties) {
-                if (properties.hasOwnProperty(property)) {
-                    this.setProperty(property, properties[property]);
-                }
-            }
+        updateProperties : function updateProperties(properties) {
+            Object.keys(properties).forEach(function (property) {
+                this.setProperty(property, properties[property]);
+            }, this);
 
             return this;
         },
@@ -273,7 +181,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @argument callback <required> [Function] function to manage response.
         @return Noting.
         **/
-        save             : function (callback) {
+        save : function save(callback) {
             var model;
 
             model = this;
@@ -284,7 +192,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             }
 
             if (this.hasOwnProperty('id') && this.id !== '') {
-                this.constructor.storage.put(this, function(data){
+                this.constructor.storage.put({confing : {}, data : this}, function(data){
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -292,7 +200,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                 });
             }
             else {
-                this.constructor.storage.post(this, function(data){
+                this.constructor.storage.post({config : {}, data : this}, function(data){
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -307,13 +215,14 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @argument callback [Function] function to manage response.
         @return Noting.
         **/
-        destroy          : function (callback) {
+        destroy : function destroy(callback) {
             var model = this;
             this.dispatch('beforeDestroy');
 
             this.constructor.storage.remove({
+                config : {},
                 conditions : { id : this.getProperty('id') }
-            }, function(){
+            }, function () {
                 model.setProperty('id', null);
                 model.dispatch('afterDestroy');
                 if (callback) {

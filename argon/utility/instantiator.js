@@ -1,16 +1,14 @@
 Class("Instantiator")({
   prototype : {
 
-    aliases : {},
-    associationAliases : {},
     classNamespace : {},
 
-    init : function(config) {
+    init : function init(config) {
       this.classNamespace = config.classNamespace || window;
       return this;
     },
 
-    instantiateResult : function(element) {
+    instantiate : function instantiate(element) {
         var property, i, result, className;
         
         className = Object.prototype.toString.call(element).replace('[object ', '').replace(']', '');
@@ -19,23 +17,21 @@ Class("Instantiator")({
             result = [];
 
             for(i = 0; i < element.length; i++) {
-                result.push(this.instantiateResult(element[i]));
+                result.push(this.instantiate(element[i]));
             }
         }
         else if ( 'Object' === className ) {
-            element = this.decodeFields(element);
+            element = this.camelizeProperties(element);
             
-            if (element.hasOwnProperty('_className')) {
-                result = new this.classNamespace[element._className]({id : element.id});
-            }
-            else {
-                result = element;
-            }
-            
+            result = {};
             for(property in element) {
                 if (element.hasOwnProperty(property)) {
-                    result[property] = this.instantiateResult(element[property]);
+                    result[property] = this.instantiate(element[property]);
                 }
+            }
+
+            if (result.hasOwnProperty('_className') && this.classNamespace[result._className]) {
+                result = new this.classNamespace[result._className](result);
             }
         }
         else {
@@ -45,7 +41,7 @@ Class("Instantiator")({
         return result;
     },
 
-    decodeFields : function(element) {
+    camelizeProperties : function camelizeProperties(element) {
         var properties = {};
         var keyName;
         for(var key in element) {

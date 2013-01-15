@@ -25,13 +25,11 @@ Module(Argon, 'Association')({
         };
         
         this.prototype[association.name] = function(callback){
-            var conditions = {};
-            conditions[association.targetProperty] = this[association.localProperty];
-            
-            association.targetModel.read({
-                conditions : conditions
-            }, 
-            function (data) {
+            var model = this;
+            association.targetModel.all(function (data) {
+                var result = data.filter(function (instance) {
+                    return instance[association.targetProperty] === model[association.localProperty];
+                });
                 if (callback) {
                     callback(data[0]);
                 }
@@ -60,13 +58,11 @@ Module(Argon, 'Association')({
         };
         
         this.prototype[association.name] = function(callback){
-            var conditions = {};
-            conditions[association.targetProperty] = this[association.localProperty];
-            
-            association.targetModel.read({
-                conditions : conditions
-            }, 
-            function (data) {
+            var model = this;
+            association.targetModel.all(function (data) {
+                var result = data.filter(function (instance) {
+                    return instance[association.targetProperty] === model[association.localProperty];
+                });
                 if (callback) {
                     callback(data);
                 }
@@ -95,13 +91,11 @@ Module(Argon, 'Association')({
         };
         
         this.prototype[association.name] = function (callback) {
-            var conditions = {};
-            conditions[association.targetProperty] = this[association.localProperty];
-            
-            association.targetModel.read({
-                conditions : conditions
-            }, 
-            function (data) {
+            var model = this;
+            association.targetModel.all(function (data) {
+                var result = data.filter(function (instance) {
+                    return instance[association.targetProperty] === model[association.localProperty];
+                });
                 if (callback) {
                     callback(data[0]);
                 }

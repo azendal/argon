@@ -8,7 +8,7 @@ Te.suite("Field Encoder")(function(){
 			lastName : "Doe"
 		}
 	};
-	var result = FieldEncoder.encode(data);
+	var result = PropertyEncoder.encode(data);
     spec.assert(typeof result).toEqual("object");
     spec.completed();
   });
@@ -25,7 +25,7 @@ Te.suite("Field Encoder")(function(){
 		id : 1,
 		query : {first_name : 'John', last_name : 'Doe'}
 	};
-	var result = FieldEncoder.encode(data);
+	var result = PropertyEncoder.encode(data);
     spec.assert(JSON.stringify(result)).toEqual(JSON.stringify(expected));
     spec.completed();
   });

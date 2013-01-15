@@ -28,13 +28,13 @@ Te.suite("Model Instantiator")(function(){
   });
 
   this.specify("Decode fields should return instance of ExampleModel")(function(spec) {
-    var result = instantiator.instantiateResult(this.registry.plainObject);
+    var result = instantiator.instantiate(this.registry.plainObject);
     spec.assert(result.constructor.className).toEqual(Argon.TestModel.ExampleModel.className);
     spec.completed();
   });
 
   this.specify("instantiateResult should return instance of ExampleModel with camel case fields")(function(spec) {
-    var result = instantiator.instantiateResult(this.registry.plainObject);
+    var result = instantiator.instantiate(this.registry.plainObject);
     spec.assert(result.animationTime).toBeTruthy();
     spec.completed();
   });
@@ -76,7 +76,7 @@ Te.suite("Model Instantiator")(function(){
     });
 
     this.specify("should return instance of ParentModel with a child instance of ChildModel")(function(spec) {
-      var result = instantiator.instantiateResult(this.registry.singleNestedObject);
+      var result = instantiator.instantiate(this.registry.singleNestedObject);
       spec.assert(result.constructor.className).toEqual(Argon.TestModel.ParentModel.className);
       spec.assert(result.child).toBeTruthy();
       spec.assert(result.child.constructor.className).toEqual(Argon.TestModel.ChildModel.className);
@@ -84,14 +84,14 @@ Te.suite("Model Instantiator")(function(){
     });
 
     this.specify("should return instance of some Model with many children instances of ChildModel")(function(spec) {
-      var result = instantiator.instantiateResult(this.registry.multiNestedObject);
+      var result = instantiator.instantiate(this.registry.multiNestedObject);
       spec.assert(result.children).toBeTruthy();
       spec.assert(result.children[0].constructor.className).toEqual(Argon.TestModel.ChildModel.className);
       spec.completed();
     });
 
     this.specify("should return plain object with child instance of ChildModel")(function(spec) {
-      var result = instantiator.instantiateResult(this.registry.multiNonClassNameNestedObject);
+      var result = instantiator.instantiate(this.registry.multiNonClassNameNestedObject);
       spec.assert(result.child.constructor.className).toEqual(Argon.TestModel.ChildModel.className);
       spec.completed();
     });

@@ -17,14 +17,32 @@ Class(Argon.Storage, 'Local')({
         confussion and overrite the prototoype object.
         **/
         storage : null,
+
+        /**
+        Contains the resource routes for the model.
+        every property matches the name of a method that will do an operation with the resource
+        @attribute url <public> [Object] ({post: '', get: '', put: '', remove: ''})
+        **/
+        url : {
+            all    : '',
+            show   : '',
+            post   : '',
+            put    : '',
+            remove : ''
+        },
         
         /**
         Initializes the instance
         @method init <public>
         @return this
         **/
-        init    : function () {
+        init    : function (config) {
             this.storage = {};
+            if (typeof config === 'unefined') {
+                Object.keys(function (property) {
+                    this[property] = config[property];
+                }, this);
+            }
         },
         
         /**
@@ -34,18 +52,20 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        post    : function (data, callback) {
+        post    : function (requestObj, callback) {
             
-            callback = callback || function(){};
+            callback = callback || function defaultPostCallback() {
+                //setup Error Notification here
+            };
             
-            if ((typeof data) === 'undefined' || data === null) {
-               callback(data);
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
+               callback();
                return this;
             }
             
-            data.id = this._generateUid();
-            this.storage[data.id] = data;
-            callback(data);
+            requestObj.data.id = this._generateUid();
+            this.storage[requestObj.data.id] = requestObj.data;
+            callback(this.storage[requestObj.data.id]);
             
             return this;
         },
@@ -57,61 +77,36 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        get     : function (query, callback) {
+        get     : function (requestObj, callback) {
             var found, storedData, property;
             
-            callback = callback || function(){};
+            callback = callback || function defaultGetCallback() {
+                //nothing here maybe put error notification
+            };
             
-            if ((typeof query) === 'undefined' || query === null) {
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
                callback(null);
                return this;
             }
             
             found      = [];
             storedData = this.storage;
-            
-            for (property in storedData) {
-                if (storedData.hasOwnProperty(property)) {
-                    found.push(storedData[property]);
-                }
-            }
-            
-            var filtered = [];
-            
-            for (var i = 0; i < found.length; i++) {
-                for (property in query.conditions) {
-                    
-                    if (!query.conditions.hasOwnProperty(property)) {
-                        continue;
-                    }
-                    
-                    var foundRecord = true;
-                    
-                    if (!found[i].hasOwnProperty(property) || found[i][property] != query.conditions[property]) {
-                        foundRecord = false;
-                    }
-                    
-                    if (foundRecord === true) {
-                        filtered.push(found[i]);
-                    }
-                }
-            }
 
-            var returnFiltered = false;
+            Object.keys(storedData).forEach(function (property) {
+                found.push(storedData[property]);
+            });
+            
+            callback(found);
+            
+            return this;
+        },
 
-            for (property in query.conditions) {
-                if (query.conditions.hasOwnProperty(property)) {
-                    returnFiltered = true;
-                }
-            }
-            
-            if (returnFiltered === true) {
-               callback(filtered);
-            }
-            else {
-                callback(found);
-            }
-            
+        show : function show(requestObj, callback) {
+            var data;
+            data = Object.keys(this.storage).filter(function (property) {
+                return requestObj.urlData.id === this.storage[property].id;
+            }, this);
+            callback(this.storage[data[0]]);
             return this;
         },
 
@@ -122,17 +117,19 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        put     : function (data, callback) {
+        put     : function (requestObj, callback) {
             
-            callback = callback || function(){};
+            callback = callback || function defaultPutCallBack() {
+                //setup Error notification
+            };
             
-            if ((typeof data) === 'undefined' || data === null) {
-               callback(data);
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
+               callback(null);
                return this;
             }
             
-            this.storage[data.id] = data;
-            callback(this.storage[data.id]);
+            this.storage[requestObj.data.id] = requestObj.data;
+            callback(this.storage[requestObj.data.id]);
         },
         
         /**
@@ -142,25 +139,22 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        remove  : function (query, callback) {
+        remove  : function (requestObj, callback) {
             var storageInstance = this;
             
-            callback = callback || function(){};
+            callback = callback || function defaultRemoveCallBack() {
+                //setup Error Notification
+            };
             
-            if ((typeof query) === 'undefined' || query === null) {
-               window.setTimeout(function(){
-                   callback(null);
-               }, 0);
+            if ((typeof requestObj) === 'undefined' || requestObj === null) {
+               callback(null);
                return this;
             }
             
-            this.get(query, function(data){
-                var i;
-                for (i=0; i < data.length; i++) {
-                    delete storageInstance.storage[data[i].id];
-                }
-                callback();
-            });
+            if (requestObj.conditions) {
+                delete storageInstance.storage[requestObj.conditions.id];
+            }
+            callback(null);
             
             return this;
         },
