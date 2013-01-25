@@ -31,7 +31,7 @@ Module(Argon, 'Association')({
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
                 if (callback) {
-                    callback(data[0]);
+                    callback(result[0]);
                 }
             });
         };
@@ -64,7 +64,7 @@ Module(Argon, 'Association')({
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
                 if (callback) {
-                    callback(data);
+                    callback(result);
                 }
             });
         };
@@ -97,7 +97,7 @@ Module(Argon, 'Association')({
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
                 if (callback) {
-                    callback(data[0]);
+                    callback(result[0]);
                 }
             });
         };

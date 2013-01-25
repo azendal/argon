@@ -16,23 +16,6 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     storage : null,
     
     /**
-    Builds a new instance of Argon Model and saves to storage.
-    @method create <public, static>
-    @argument data <required> [Object] the attributes of the model.
-    @return [Argon.Model]
-    **/
-    create : function create(data, callback) {
-        var model;
-        this.dispatch('beforeCreate');
-        model = new this(data);
-        model.save(callback, function (instance) {
-            this.dispatch('afterCreate');
-            return instance;
-        });
-        return this;
-    },
-    
-    /**
     Builds a new instance of Argon Model from storage.
     @method read <public, static>
     @argument query <required> [Object] conditions to match.
@@ -162,20 +145,6 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         },
         
         /**
-        Sets the value of a group of properties.
-        @method updateProperties <public>
-        @argument properties <required> [Object] the properties collection to write.
-        @return [Object] instance of the model.
-        **/
-        updateProperties : function updateProperties(properties) {
-            Object.keys(properties).forEach(function (property) {
-                this.setProperty(property, properties[property]);
-            }, this);
-
-            return this;
-        },
-        
-        /**
         Saves the model to storage.
         @method save <public>
         @argument callback <required> [Function] function to manage response.
@@ -192,7 +161,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             }
 
             if (this.hasOwnProperty('id') && this.id !== '') {
-                this.constructor.storage.put({confing : {}, data : this}, function(data){
+                this.constructor.storage.post({config : {url : this.constructor.storage.url.put.replace('{:id}', this.id)}, data : this}, function (data){
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -220,7 +189,9 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             this.dispatch('beforeDestroy');
 
             this.constructor.storage.remove({
-                config : {},
+                config : {
+                    url : this.constructor.storage.url.remove.replace('{:id}', this.id)
+                },
                 conditions : { id : this.getProperty('id') }
             }, function () {
                 model.setProperty('id', null);

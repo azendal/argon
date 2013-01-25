@@ -38,7 +38,7 @@ Class(Argon.Storage, 'Local')({
         **/
         init    : function (config) {
             this.storage = {};
-            if (typeof config === 'unefined') {
+            if (typeof config !== 'unefined') {
                 Object.keys(function (property) {
                     this[property] = config[property];
                 }, this);

@@ -144,7 +144,7 @@ Class(Argon.Storage, 'JsonRest')({
         ajaxConfig = {
             url         : requestObj.config.url,
             type        : requestObj.config.type || this.REQUEST_TYPE_GET,
-//            contentType : requestObj.config.contentType || 'application/json',
+            contentType : requestObj.config.contentType || 'application/json',
             global      : false,
             async       : true,
             cache       : false,
@@ -154,7 +154,7 @@ Class(Argon.Storage, 'JsonRest')({
         };
 
         if (ajaxConfig.type != Argon.Storage.JsonRest.REQUEST_TYPE_GET) {
-            ajaxConfig.data = requestObj.data;
+            ajaxConfig.data = JSON.stringify(requestObj.data);
         }
 
         if (ajaxConfig.type == this.REQUEST_TYPE_PUT || ajaxConfig.type == this.REQUEST_TYPE_DELETE) {
@@ -385,9 +385,15 @@ Class(Argon.Storage, 'JsonRest')({
                 callback(null);
                 return this;
             }
-
+            
             requestObj.config.url = requestObj.config.url || this.url.put;
-            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_PUT;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_POST;
+
+            if (requestObj.data) {
+                for (i = 0; i < storage.preprocessors.length; i++) {
+                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                }
+            }
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
@@ -423,7 +429,7 @@ Class(Argon.Storage, 'JsonRest')({
             }
 
             requestObj.config.url = requestObj.config.url || this.url.remove;
-            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_PUT;
+            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
