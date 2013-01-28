@@ -160,10 +160,14 @@ Class(Tellurium, 'Spy')({
                     scope = spy.targetObject;
                 }
                 
+                var startTime = Date.now();
                 result = spy.originalMethod.apply(scope, args);
+                var endTime = Date.now();
+
                 spy.called.push({
                     arguments : args,
-                    returned : result
+                    returned : result,
+                    time     : endTime - startTime
                 });
                 return result;
             };
