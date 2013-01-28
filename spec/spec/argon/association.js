@@ -57,7 +57,7 @@ Te.suite('Associations')(function(){
     });
     
     this.specify('Model instance  has many association method returns the correct data')(function(spec){
-        spec.registry.ExampleModel.read({}, function(data){
+        spec.registry.ExampleModel.all(function(data){
             var instance = new spec.registry.ExampleModel(data[0]);
             instance.model2(function(data){
                 spec.assert(data.length).toBeGreaterThan(0);
@@ -68,7 +68,7 @@ Te.suite('Associations')(function(){
     });
     
     this.specify('hasOne association returns the correct data')(function(spec){
-        spec.registry.ExampleModel2.read({}, function(data){
+        spec.registry.ExampleModel2.all(function(data){
             var instance = new spec.registry.ExampleModel2(data[0]);
             instance.model(function(data){
                 spec.assert(data).toBeTruthy();

@@ -20,8 +20,10 @@ var app = {
         },
 
         'POST' : function(req, res) {
+            debugger;
+            req.data = JSON.parse(JSON.stringify(req.data));
             var content = [1,2,3,4,5,6];
-            if(req.data.valid === "false") {
+            if(req.data.valid === false) {
               content = {error : "Invalid Data"};
               res.writeHead(422, {"Content-Type": "text/json"});
             } else {
@@ -32,8 +34,9 @@ var app = {
         },
 
         'PUT' : function(req, res) {
+            req.data = JSON.parse(JSON.stringify(req.data));
             var content = [1,2,3,4,5,6];
-            if(req.data.valid === "false") {
+            if(req.data.valid === false) {
               content = {error : "Invalid Data"};
               res.writeHead(422, {"Content-Type": "text/json"});
             } else {
@@ -82,7 +85,12 @@ var processRequest = function(req, res) {
     req.on("end", function() {
         console.log("raw: " + data);
 
-        req.data = qs.parse(data);
+        if (typeof data == 'string' && data.length >= 2) {
+         req.data = JSON.parse(data);
+        }
+        else {
+            req.data = {};
+        }
 
         console.log("json: " + JSON.stringify(req.data));
 
@@ -96,7 +104,7 @@ var processRequest = function(req, res) {
     var uri      = url.parse(req.url).pathname,
         filename = path.join(process.cwd(), uri);
 
-    path.exists(filename, function(exists) {
+    fs.exists(filename, function(exists) {
         if(!exists) {
 
             if(app[req.url] && app[req.url][req.method]){

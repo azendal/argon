@@ -39,7 +39,7 @@ Te.suite('Json Rest Storage')(function(){
 
         this.specify("Response should return a string with prefix 'response_data:'")(function(spec){
             var regexp = /response_data:.+/;
-            storage2.post({config : {}, data:{x:1}}, function(data){
+            storage2.create({data:{x:1}}, function(data){
                 spec.assert(data).toMatch(regexp);
                 spec.completed();
             });
@@ -50,7 +50,7 @@ Te.suite('Json Rest Storage')(function(){
         this.specify('test post request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");
             var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processResponse");
-            storage.post({config : {}, data:{x:1}}, function(){
+            storage.create({data:{x:1}}, function(){
                 spec.assert(spy).toBeCalled();
                 spec.assert(spy2).toBeCalled();
                 spec.completed();
@@ -58,21 +58,21 @@ Te.suite('Json Rest Storage')(function(){
         });
 
         this.specify('calling post with no data')(function(spec){
-            storage.post();
+            storage.create();
             spec.completed();
         });
 
         this.specify('calling post with invalid data')(function(spec){
-            var req_data = {config : {}, data : { test_name : spec.description, valid : false }};
-            storage.post(req_data, function(data) {
+            var req_data = {data : { test_name : spec.description, valid : false }};
+            storage.create(req_data, function(data) {
                 spec.assert(data.error).toEqual("Invalid Data");
                 spec.completed();
             });
         });
 
         this.specify('calling post with valid data')(function(spec){
-            var req_data = {config : {}, data : { test_name : spec.description, valid : true}};
-            storage.post(req_data, function(data) {
+            var req_data = {data : { test_name : spec.description, valid : true}};
+            storage.create(req_data, function(data) {
                 spec.assert(data.join(",")).toEqual("1,2,3,4,5,6");
                 spec.completed();
             } );
@@ -84,7 +84,7 @@ Te.suite('Json Rest Storage')(function(){
         this.specify('test get request chain')(function(spec){
             var spy = this.spy().on(Argon.Storage.JsonRest).method("_sendRequest");
             var spy2 = this.spy().on(Argon.Storage.JsonRest).method("_processResponse");
-            storage.get({config : {}}, function(){
+            storage.find({}, function(){
                 spec.assert(spy).toBeCalled();
                 spec.assert(spy2).toBeCalled();
                 spec.completed();
@@ -92,7 +92,7 @@ Te.suite('Json Rest Storage')(function(){
         });
 
         this.specify('calling get with callback')(function(spec){
-            storage.get({config : {}}, function(data){
+            storage.find({}, function(data){
                 spec.assert(data).toBeDefined();
                 spec.completed();
             });
@@ -100,8 +100,8 @@ Te.suite('Json Rest Storage')(function(){
 
         this.specify('preprocessors are executed')(function(spec){
             var spy = this.spy().on(storage2.preprocessors).method(0);
-            var data = {config : {}, someData:'value'};
-            storage2.get(data, function(result){
+            var data = {someData:'value'};
+            storage2.create({data:data}, function(result){
                 spec.assert(spy).toBeCalled();
                 spec.completed();
             });
@@ -117,7 +117,7 @@ Te.suite('Json Rest Storage')(function(){
             var spy = this.spy().on(storage3.preprocessors).method(0);
             var data = {id:1, query: {firstName:"John", lastName:"Doe"}};
             var expected = {id:1, query: {first_name:"John", last_name:"Doe"}};
-            storage3.get(data, function(result){
+            storage3.create({data:data}, function(result){
                 spec.assert(spy).toBeCalled();
                 spec.assert(JSON.stringify(result)).toEqual(JSON.stringify(expected));
                 spec.completed();
@@ -127,13 +127,13 @@ Te.suite('Json Rest Storage')(function(){
 
     this.describe('put')(function(){
         this.specify('calling put with no data')(function(spec) {
-            storage.put();
+            storage.update();
             spec.completed();
         });
 
         this.specify('calling put with invalid data')(function(spec) {
             var req_data = {config : {}, data : { test_name : spec.description, valid : false }};
-            storage.put(req_data, function(data) {
+            storage.update(req_data, function(data) {
                 spec.assert(data.error).toEqual("Invalid Data");
                 spec.completed();
             });
@@ -141,7 +141,7 @@ Te.suite('Json Rest Storage')(function(){
 
         this.specify('calling put with valid data')(function(spec) {
             var req_data = {config : {}, data : { test_name : spec.description, valid : true }};
-            storage.put(req_data, function(data) {
+            storage.update(req_data, function(data) {
                 spec.assert(data.join(",")).toEqual("1,2,3,4,5,6");
                 spec.completed();
             });
@@ -149,7 +149,7 @@ Te.suite('Json Rest Storage')(function(){
 
         this.specify('calling put without callback')(function(spec){
             var req_data = {config : {}, data : { test_name : spec.description, valid : true }};
-            storage.put(req_data);
+            storage.update(req_data);
             spec.completed();
         });
     });

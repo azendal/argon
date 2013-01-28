@@ -1,30 +1,30 @@
 Te.suite('Local Storage')(function(){
     var plainStorage = new Argon.Storage.Local();
     
-    this.describe('post')(function(){
+    this.describe('create')(function(){
         this.specify('calling with no data')(function(){
-            plainStorage.post(null);
+            plainStorage.create(null);
             this.completed();
         });
         
         this.specify('calling with invalid data')(function(){
-            plainStorage.post(null);
-            plainStorage.post(undefined);
+            plainStorage.create(null);
+            plainStorage.create(undefined);
             this.completed();
         });
         
         this.specify('calling with data')(function(){
-            plainStorage.post({data : ''});
+            plainStorage.create({data : ''});
             this.completed();
         });
         
         this.specify('calling without callback')(function(){
-            plainStorage.post({data:''});
+            plainStorage.create({data:''});
             this.completed();
         });
         
         this.specify('calling with callback')(function(spec){
-            plainStorage.post({data : 1}, function(){
+            plainStorage.create({data : 1}, function(){
                spec.completed();
             });
         });
@@ -34,12 +34,12 @@ Te.suite('Local Storage')(function(){
     this.describe('get')(function(){
         
         this.specify('calling without callback')(function(){
-            plainStorage.get({});
+            plainStorage.find({});
             this.completed();
         });
         
         this.specify('calling with callback')(function(spec){
-            plainStorage.get({}, function(){
+            plainStorage.find({}, function(){
                spec.completed();
             });
         });
@@ -48,27 +48,27 @@ Te.suite('Local Storage')(function(){
     
     this.describe('put')(function(){
         this.specify('calling with no data')(function(){
-            plainStorage.put(null);
+            plainStorage.update(null);
             this.completed();
         });
         
         this.specify('calling with invalid data')(function(){
-            plainStorage.put(undefined);
+            plainStorage.update(undefined);
             this.completed();
         });
         
         this.specify('calling with data')(function(){
-            plainStorage.put({data : ''});
+            plainStorage.update({data : ''});
             this.completed();
         });
         
         this.specify('calling without callback')(function(){
-            plainStorage.put({data : ''});
+            plainStorage.update({data : ''});
             this.completed();
         });
         
         this.specify('calling with callback')(function(spec){
-            plainStorage.put({data : 1}, function(){
+            plainStorage.update({data : 1}, function(){
                spec.completed();
             });
         });

@@ -237,11 +237,11 @@ Class(Argon.Storage, 'JsonRest')({
         @attribute url <public> [Object] ({post: '', get: '', put: '', remove: ''})
         **/
         url : {
-            all    : '',
-            show   : '',
-            post   : '',
-            put    : '',
-            remove : ''
+            find    : undefined,
+            findOne : undefined,
+            create  : undefined,
+            update  : undefined,
+            remove  : undefined
         },
 
         /**
@@ -273,7 +273,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] the data to post, generally this comes from a model
         @argument callback <optional> [Function]
         **/
-        post : function (requestObj, callback) {
+        create : function (requestObj, callback) {
 
             var i, requestConfig, storage;
 
@@ -285,9 +285,14 @@ Class(Argon.Storage, 'JsonRest')({
                 callback(null);
                 return this;
             }
-
+            
+            requestObj.config = {};
             requestObj.config.url = requestObj.config.url || this.url.post;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_POST;
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data);
+            }
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
@@ -305,7 +310,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
         @argument callback <optional> [Function]
         **/
-        get : function (requestObj, callback) {
+        find : function (requestObj, callback) {
             var i, found, storedData, property, requestConfig, storage;
 
             storage = this;
@@ -320,6 +325,7 @@ Class(Argon.Storage, 'JsonRest')({
                 return this;
             }
 
+            requestObj.config = {};
             requestObj.config.url = requestObj.config.url || this.url.get;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 
@@ -339,8 +345,8 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
         @argument callback <optional> [Function]
         **/
-        show : function (requestObj, callback) {
-            var i, found, storedData, property, requestConfig, storage;
+        findOne : function (requestObj, callback) {
+            var i, found, storedData, property, storage;
 
             storage = this;
             callback = callback || function(){};
@@ -354,8 +360,11 @@ Class(Argon.Storage, 'JsonRest')({
                 return this;
             }
 
-            requestObj.config.url = requestObj.config.url || this.url.show;
-            requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
+            requestObj.config = {};
+            requestObj.config.url = this.url.findOne;
+            requestObj.config.url = PlaceHolder.replace(requestObj.config.url, requestObj.params);
+            requestObj.config.url = PlaceHolder.replace(requestObj.config.url, requestObj.data);
+            requestObj.config.type = this.constructor.REQUEST_TYPE_GET;
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
@@ -373,7 +382,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
-        put : function (requestObj, callback) {
+        update : function (requestObj, callback) {
 
             var found, storedData, property, storage;
 
@@ -386,6 +395,7 @@ Class(Argon.Storage, 'JsonRest')({
                 return this;
             }
             
+            requestObj.config = {};
             requestObj.config.url = requestObj.config.url || this.url.put;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_POST;
 
@@ -428,6 +438,7 @@ Class(Argon.Storage, 'JsonRest')({
                 return this;
             }
 
+            requestObj.config = {};
             requestObj.config.url = requestObj.config.url || this.url.remove;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 

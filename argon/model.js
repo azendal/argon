@@ -16,45 +16,22 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     storage : null,
     
     /**
-    Builds a new instance of Argon Model from storage.
-    @method read <public, static>
-    @argument query <required> [Object] conditions to match.
-    @argument callback <optional> [function] function to handle data.
-    @return [Argon.Model]
-    **/
-    read : function read(query, callback) {
-        var Model;
-        query = query || {};
-
-        Model = this;
-
-        this.dispatch('beforeRead');
-
-        query.className = this.className;
-
-        this.storage.get({config : {}, conditions : query}, function(data){
-            Model.dispatch('afterRead');
-            if (callback) {
-                callback(data);
-            }
-        });
-
-        return this;
-    },
-    
-    /**
     Fetches all records of a given Model and creates the instances.
     @method all <public, static>
     @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
     all : function all(callback) {
-        var Model, data;
-        
         Model = this;
-        this.read({config : {}}, function (data) {
+        var request = {
+            find : 'find'
+        };
+        
+        this.dispatch('beforeAll'); 
+        this.storage.find(request, function (data) {
             if (callback) {
                 callback.call(Model, data);
+                Model.dispatch('afterAll');
             }
         });
         
@@ -69,17 +46,14 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model].
     **/
     find : function (id, callback) {
-        var data;
         var Model = this;
-        this.dispatch('beforeRead');
-        this.storage.show({config : {
-                url : this.storage.url.show.replace('{:id}', id)
-            },
-            urlData : {
+        var request = {
+            action : 'findOne',
+            params : {
                 id : id
             }
-        }, function (data) {
-            Model.dispatch('afterRead');
+        }
+        this.storage.findOne(request, function (data) {
             if (callback) {
                 callback.call(Model, data);
             }
@@ -151,7 +125,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         @return Noting.
         **/
         save : function save(callback) {
-            var model;
+            var model, request;
 
             model = this;
 
@@ -161,7 +135,11 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             }
 
             if (this.hasOwnProperty('id') && this.id !== '') {
-                this.constructor.storage.post({config : {url : this.constructor.storage.url.put.replace('{:id}', this.id)}, data : this}, function (data){
+                request = {
+                    action : 'update',
+                    data : this
+                };
+                this.constructor.storage.update(request, function (data){
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -169,7 +147,11 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                 });
             }
             else {
-                this.constructor.storage.post({config : {}, data : this}, function(data){
+                request = {
+                    action : 'create',
+                    data : this
+                };
+                this.constructor.storage.create(request, function(data){
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -186,14 +168,13 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         **/
         destroy : function destroy(callback) {
             var model = this;
+            var request = {
+                action : 'remove',
+                data : this
+            };
             this.dispatch('beforeDestroy');
 
-            this.constructor.storage.remove({
-                config : {
-                    url : this.constructor.storage.url.remove.replace('{:id}', this.id)
-                },
-                conditions : { id : this.getProperty('id') }
-            }, function () {
+            this.constructor.storage.remove(request, function () {
                 model.setProperty('id', null);
                 model.dispatch('afterDestroy');
                 if (callback) {
@@ -203,4 +184,3 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         }
     }
 });
-

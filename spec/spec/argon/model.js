@@ -92,7 +92,7 @@ Te.suite('Model')(function(){
                 em.save(function(data){
                     em.setProperty('x', 2);
                     em.save(function(){
-                        ExampleModel.read({}, function(examples){
+                        ExampleModel.all(function(examples){
                             spec.assert(examples[0].x).toEqual(2);
                             spec.completed();
                         });
@@ -109,7 +109,7 @@ Te.suite('Model')(function(){
 
                 em.save(function(){
                     em.destroy(function(){
-                        ExampleModel.read({},function(data){
+                        ExampleModel.all(function(data){
                             spec.assert(data.length).toEqual(0);
                             spec.completed();
                         });
@@ -127,11 +127,11 @@ Te.suite('Model')(function(){
 
                 executedEvent = false;
 
-                this.registry.ExampleModel.bind('beforeRead', function(){
+                this.registry.ExampleModel.bind('beforeAll', function(){
                    executedEvent = true;
                 });
 
-                this.registry.ExampleModel.read({}, function(){
+                this.registry.ExampleModel.all(function(){
                     spec.assert(executedEvent).toBe(true);
                     spec.completed();
                 });

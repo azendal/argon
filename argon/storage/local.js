@@ -17,19 +17,6 @@ Class(Argon.Storage, 'Local')({
         confussion and overrite the prototoype object.
         **/
         storage : null,
-
-        /**
-        Contains the resource routes for the model.
-        every property matches the name of a method that will do an operation with the resource
-        @attribute url <public> [Object] ({post: '', get: '', put: '', remove: ''})
-        **/
-        url : {
-            all    : '',
-            show   : '',
-            post   : '',
-            put    : '',
-            remove : ''
-        },
         
         /**
         Initializes the instance
@@ -52,7 +39,7 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        post    : function (requestObj, callback) {
+        create    : function (requestObj, callback) {
             
             callback = callback || function defaultPostCallback() {
                 //setup Error Notification here
@@ -77,7 +64,7 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        get     : function (requestObj, callback) {
+        find : function (requestObj, callback) {
             var found, storedData, property;
             
             callback = callback || function defaultGetCallback() {
@@ -101,10 +88,16 @@ Class(Argon.Storage, 'Local')({
             return this;
         },
 
-        show : function show(requestObj, callback) {
+        /**
+        Reads from the resource
+        @method get <public>
+        @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
+        @argument callback <optional> [Function]
+        **/
+        findOne : function findOne(requestObj, callback) {
             var data;
             data = Object.keys(this.storage).filter(function (property) {
-                return requestObj.urlData.id === this.storage[property].id;
+                return requestObj.params.id === this.storage[property].id;
             }, this);
             callback(this.storage[data[0]]);
             return this;
@@ -117,7 +110,7 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        put     : function (requestObj, callback) {
+        update     : function (requestObj, callback) {
             
             callback = callback || function defaultPutCallBack() {
                 //setup Error notification
@@ -151,8 +144,8 @@ Class(Argon.Storage, 'Local')({
                return this;
             }
             
-            if (requestObj.conditions) {
-                delete storageInstance.storage[requestObj.conditions.id];
+            if (requestObj.data && requestObj.data.id) {
+                delete storageInstance.storage[requestObj.data.id];
             }
             callback(null);
             

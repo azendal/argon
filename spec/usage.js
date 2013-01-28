@@ -24,7 +24,8 @@ Te.suite('Argon Usage')(function() {
             }
         });
         
-        Scope.User.create({username:'fernando', password:'123456'}, function(user){
+        var user = new Scope.User({username:'fernando', password:'123456'});
+        user.save(function(user){
             user = new Scope.User(user);
             spec.assert(user.errors.length).toEqual(0);
             spec.assert(user.getProperty('username')).toEqual('fernando');
