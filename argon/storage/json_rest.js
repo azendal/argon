@@ -250,7 +250,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument config <required> [Object]
         @return this
         **/
-        init : function (config) {
+        init : function init(config) {
             var property;
 
             for (property in config) {
@@ -273,7 +273,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] the data to post, generally this comes from a model
         @argument callback <optional> [Function]
         **/
-        create : function (requestObj, callback) {
+        create : function create(requestObj, callback) {
 
             var i, requestConfig, storage;
 
@@ -310,7 +310,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
         @argument callback <optional> [Function]
         **/
-        find : function (requestObj, callback) {
+        find : function find(requestObj, callback) {
             var i, found, storedData, property, requestConfig, storage;
 
             storage = this;
@@ -345,7 +345,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument requestObj <optional> [Object] ({data : {}, query : {}, request : {url : '/'}})
         @argument callback <optional> [Function]
         **/
-        findOne : function (requestObj, callback) {
+        findOne : function findOne(requestObj, callback) {
             var i, found, storedData, property, storage;
 
             storage = this;
@@ -382,7 +382,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
-        update : function (requestObj, callback) {
+        update : function update(requestObj, callback) {
 
             var found, storedData, property, storage;
 
@@ -407,7 +407,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    requestObj.data = storage.processors[i](requestObj.data);
+                    data = storage.processors[i](data);
                 }
                 callback(data);
             });
@@ -425,7 +425,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument params <optional> [Object]
         @argument callback <optional> [Function]
         **/
-        remove : function (requestObj, callback) {
+        remove : function remove(requestObj, callback) {
 
             var requestConfig, storage;
 
@@ -442,11 +442,14 @@ Class(Argon.Storage, 'JsonRest')({
             requestObj.config.url = requestObj.config.url || this.url.remove;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 
-            this.constructor._sendRequest(requestObj, function(data){
-                for (i = 0; i < storage.processors.length; i++) {
-                    requestObj.data = storage.processors[i](requestObj.data);
+            if (requestObj.data) {
+                for (i = 0; i < storage.preprocessors.length; i++) {
+                    requestObj.data = storage.preprocessors[i](requestObj.data);
                 }
-                callback(data);
+            }
+
+            this.constructor._sendRequest(requestObj, function(data){
+                callback(null);
             });
 
             return this;

@@ -5,6 +5,72 @@ The implementation is not really coupled with Argon but it was designed to be us
 @namespace Argon.Storage
 **/
 Class(Argon.Storage, 'Local')({
+
+    /**
+    Holds the list of processors that will be running to format and sanitize the response
+    returned from the JSON service provider.
+
+    All the processors must be synchronous for now so make sure that the return values are the result
+    of the processed data.
+
+    Example: A simple attribute sanitizer.
+
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var sanitizedData, property;
+
+            sanitizedData = {};
+
+            for (property in data) {
+                if (data.hasOwnProperty(property)) {
+                    sanitizedData[property.camelize()] = data[property];
+                }
+            }
+
+            return sanitizedData;
+        });
+
+    Example: Using the instantiator utility.
+
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var instantiator = new Instantiator({
+                classNamespace : Argon.TestModel
+            });
+
+            return instantiator.instantiateResult(data);
+        });
+
+    @attribute processors <public, static> [Array] ([])
+
+    @todo support asynchronous processors (still not sure if this is actually needed)
+    **/
+    processors : [],
+
+    /**
+    Holds the list of preprocessors that will run to format, sanitize the data before sending
+    it to the storage service.
+
+    All the preprocessors must be synchronous for now so make sure that the return values are
+    the intended results.
+
+    Example : A simple dasherizer
+
+        Argon.Storage.JsonRest.processors.push(function(data){
+            var sanitizedData, property;
+
+            sanitizedData = {};
+
+            for (property in data) {
+                if (data.hasOwnProperty(property)) {
+                    sanitizedData[property.dasherize()] = data[property];
+                }
+            }
+
+            return sanitizedData;
+        });
+
+    **/
+    preprocessors : [],
+
     /**
     Instance properties container
     @attribute prototype <public> [Object]
@@ -19,16 +85,35 @@ Class(Argon.Storage, 'Local')({
         storage : null,
         
         /**
+        Holds the processors that are specific only for the instance of the storage
+        @property processors <public> [Array] (null)
+        **/
+        processors : null,
+
+        /**
+        Holds the preprocessors that are specific only for the instance of the storage
+        @property preprocessors <public> [Array] (null)
+        **/
+		preprocessors : null,
+        
+        /**
         Initializes the instance
         @method init <public>
         @return this
         **/
-        init    : function (config) {
+        init    : function init(config) {
             this.storage = {};
             if (typeof config !== 'unefined') {
                 Object.keys(function (property) {
                     this[property] = config[property];
                 }, this);
+            }
+
+            if((typeof this.processors) != 'array'){
+                this.processors = [].concat(this.constructor.processors);
+            }
+			if((typeof this.preprocessors) != 'array'){
+                this.preprocessors = [].concat(this.constructor.preprocessors);
             }
         },
         
@@ -39,8 +124,10 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        create    : function (requestObj, callback) {
-            
+        create    : function create(requestObj, callback) {
+           
+            var storage = this;
+
             callback = callback || function defaultPostCallback() {
                 //setup Error Notification here
             };
@@ -51,8 +138,18 @@ Class(Argon.Storage, 'Local')({
             }
             
             requestObj.data.id = this._generateUid();
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data);
+            }
             this.storage[requestObj.data.id] = requestObj.data;
-            callback(this.storage[requestObj.data.id]);
+            
+            var data = this.storage[requestObj.data.id];            
+
+            for (i = 0; i < storage.processors.length; i++) {
+                data = storage.processors[i](data);
+            }
+            callback(data);
             
             return this;
         },
@@ -64,13 +161,19 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Array]
         **/
-        find : function (requestObj, callback) {
+        find : function find(requestObj, callback) {
             var found, storedData, property;
+
+            var storage = this;
             
             callback = callback || function defaultGetCallback() {
                 //nothing here maybe put error notification
             };
             
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data);
+            }
+
             if ((typeof requestObj) === 'undefined' || requestObj === null) {
                callback(null);
                return this;
@@ -82,8 +185,13 @@ Class(Argon.Storage, 'Local')({
             Object.keys(storedData).forEach(function (property) {
                 found.push(storedData[property]);
             });
+
+            var data = found; 
             
-            callback(found);
+            for (i = 0; i < storage.processors.length; i++) {
+                data = storage.processors[i](data);
+            }
+            callback(data);
             
             return this;
         },
@@ -96,10 +204,23 @@ Class(Argon.Storage, 'Local')({
         **/
         findOne : function findOne(requestObj, callback) {
             var data;
+            var storage = this;
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data);
+            }
+
             data = Object.keys(this.storage).filter(function (property) {
                 return requestObj.params.id === this.storage[property].id;
             }, this);
-            callback(this.storage[data[0]]);
+            
+            var data = this.storage[data[0]];
+
+            for (i = 0; i < storage.processors.length; i++) {
+                data = storage.processors[i](data);
+            }
+            callback(data);
+
             return this;
         },
 
@@ -110,8 +231,8 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        update     : function (requestObj, callback) {
-            
+        update : function update(requestObj, callback) {
+            var storage = this;            
             callback = callback || function defaultPutCallBack() {
                 //setup Error notification
             };
@@ -121,8 +242,20 @@ Class(Argon.Storage, 'Local')({
                return this;
             }
             
+            if (requestObj.data) {
+                for (i = 0; i < storage.preprocessors.length; i++) {
+                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                }
+            }
+            
             this.storage[requestObj.data.id] = requestObj.data;
-            callback(this.storage[requestObj.data.id]);
+            
+            var data = this.storage[requestObj.data.id];            
+
+            for (i = 0; i < storage.processors.length; i++) {
+                data = storage.processors[i](data);
+            }
+            callback(data);
         },
         
         /**
@@ -132,8 +265,9 @@ Class(Argon.Storage, 'Local')({
         @argument callback [Function] The function that will be executed when the process ends
         @return [Object] this
         **/
-        remove  : function (requestObj, callback) {
+        remove  : function remove(requestObj, callback) {
             var storageInstance = this;
+            var storage = this;
             
             callback = callback || function defaultRemoveCallBack() {
                 //setup Error Notification
@@ -143,10 +277,17 @@ Class(Argon.Storage, 'Local')({
                callback(null);
                return this;
             }
+
+            if (requestObj.data) {
+                for (i = 0; i < storage.preprocessors.length; i++) {
+                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                }
+            }
             
             if (requestObj.data && requestObj.data.id) {
                 delete storageInstance.storage[requestObj.data.id];
             }
+
             callback(null);
             
             return this;
@@ -165,7 +306,7 @@ Class(Argon.Storage, 'Local')({
         @argument length <required> [Number] (32) The length of the generated string
         @return [String]
         **/
-        _generateUid : (function () {
+        _generateUid : (function generateUid() {
             var getUid = function(length){
                 var i, uid, min, max;
                 

@@ -3,7 +3,7 @@ Module("ValidationSupport")({
 
     prototype : {
         errors : [],
-        isValid : function () {
+        isValid : function isValid() {
             var valid, validationPassed, validations;
             valid = true;
             validations = this.constructor.validations;
@@ -23,4 +23,3 @@ Module("ValidationSupport")({
         }
     }
 });
-

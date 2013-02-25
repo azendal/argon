@@ -28,7 +28,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         };
         
         this.dispatch('beforeAll'); 
-        this.storage.find(request, function (data) {
+        this.storage.find(request, function findCallback(data) {
             if (callback) {
                 callback.call(Model, data);
                 Model.dispatch('afterAll');
@@ -45,7 +45,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @argument callback <optional> [Function] method to handle data.
     @return [Argon.Model].
     **/
-    find : function (id, callback) {
+    find : function find(id, callback) {
         var Model = this;
         var request = {
             action : 'findOne',
@@ -53,7 +53,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                 id : id
             }
         }
-        this.storage.findOne(request, function (data) {
+        this.storage.findOne(request, function findOneCallback(data) {
             if (callback) {
                 callback.call(Model, data);
             }
@@ -62,11 +62,6 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     },
     
     prototype : {
-        /**
-        Contain the errors for the model instance
-        @property errors <public> [Array] ([])
-        **/
-        errors : [],
 
         /**
         Object initializer, this method server as the real constructor
@@ -129,7 +124,13 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
 
             model = this;
 
+            this.constructor.dispatch('beforeSave', {
+                data : {
+                    model : this
+                }
+            });
             this.dispatch('beforeSave');
+
             if (!this.isValid()) {
                 return model;
             }
@@ -139,7 +140,13 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     action : 'update',
                     data : this
                 };
-                this.constructor.storage.update(request, function (data){
+                this.constructor.storage.update(request, function updateCallback(data) {
+                    model.constructor.dispatch('afterSave', {
+                        data : {
+                            model : model
+                        }
+                    });
+
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -151,7 +158,13 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     action : 'create',
                     data : this
                 };
-                this.constructor.storage.create(request, function(data){
+                this.constructor.storage.create(request, function createCallback(data) {
+                    model.constructor.dispatch('afterSave', {
+                        data : {
+                            model : model
+                        }
+                    });
+
                     model.dispatch('afterSave');
                     if (callback) {
                         callback(data);
@@ -174,7 +187,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             };
             this.dispatch('beforeDestroy');
 
-            this.constructor.storage.remove(request, function () {
+            this.constructor.storage.remove(request, function destroyCallback() {
                 model.setProperty('id', null);
                 model.dispatch('afterDestroy');
                 if (callback) {

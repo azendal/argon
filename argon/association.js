@@ -13,7 +13,7 @@ Module(Argon, 'Association')({
     @argument <required> [Object] ({}) config
     @return this
     **/
-    hasOne  : function (config) {
+    hasOne  : function hasOne(config) {
         var association;
         association = {
             type           : 'HAS_ONE',
@@ -46,7 +46,7 @@ Module(Argon, 'Association')({
     @argument <required> [Object] ({}) config
     @return this
     **/
-    hasMany : function (config) {
+    hasMany : function hasMany(config) {
         var association;
         association = {
             type           : 'HAS_MANY',
@@ -79,7 +79,7 @@ Module(Argon, 'Association')({
     @argument <required> [Object] ({}) config
     @return this
     **/
-    belongsTo  : function (config) {
+    belongsTo  : function belongsTo(config) {
         var association;
         association = {
             type           : 'BELONGS_TO',
