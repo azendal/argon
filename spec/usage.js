@@ -9,17 +9,23 @@ Te.suite('Argon Usage')(function() {
             
             validations : {
                 username : {
-                    validate : function(){
-                        return this.hasOwnProperty('username') && this.getProperty('username').length > 0;
-                    },
-                    message : 'username is required'
+                    validate : function (callback) {
+                        if (this.hasOwnProperty('username') && this.getProperty('username').length > 0) {
+                            callback();
+                        } else {
+                            callback('username is required');
+                        }
+                    }
                 },
                 
                 password : {
-                    validate : function(){
-                        return this.hasOwnProperty('password') && this.getProperty('password').length > 5;
-                    },
-                    message : 'password is required'
+                    validate : function (callback) {
+                        if (this.hasOwnProperty('password') && this.getProperty('password').length > 5) {
+                            callback();
+                        } else {
+                            callback('password is required');
+                        }
+                    }
                 }
             }
         });
