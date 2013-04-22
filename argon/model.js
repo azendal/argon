@@ -131,46 +131,49 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             });
             this.dispatch('beforeSave');
 
-            if (!this.isValid()) {
-                return model;
-            }
+            this.isValid(function (isValid) {
+                if (isValid) {
+                    if (model.hasOwnProperty('id') && model.id !== '') {
+                        request = {
+                            action : 'update',
+                            data : model
+                        };
+                        model.constructor.storage.update(request, function updateCallback(data) {
+                            model.constructor.dispatch('afterSave', {
+                                data : {
+                                    model : model
+                                }
+                            });
 
-            if (this.hasOwnProperty('id') && this.id !== '') {
-                request = {
-                    action : 'update',
-                    data : this
-                };
-                this.constructor.storage.update(request, function updateCallback(data) {
-                    model.constructor.dispatch('afterSave', {
-                        data : {
-                            model : model
-                        }
-                    });
-
-                    model.dispatch('afterSave');
-                    if (callback) {
-                        callback(data);
+                            model.dispatch('afterSave');
+                            if (callback) {
+                                callback(data);
+                            }
+                        });
                     }
-                });
-            }
-            else {
-                request = {
-                    action : 'create',
-                    data : this
-                };
-                this.constructor.storage.create(request, function createCallback(data) {
-                    model.constructor.dispatch('afterSave', {
-                        data : {
-                            model : model
-                        }
-                    });
+                    else {
+                        request = {
+                            action : 'create',
+                            data : model
+                        };
+                        model.constructor.storage.create(request, function createCallback(data) {
+                            model.constructor.dispatch('afterSave', {
+                                data : {
+                                    model : model
+                                }
+                            });
 
-                    model.dispatch('afterSave');
-                    if (callback) {
-                        callback(data);
+                            model.dispatch('afterSave');
+                            if (callback) {
+                                callback(data);
+                            }
+                        });
                     }
-                });
-            }
+                } else {
+                    callback && callback(model);
+                }
+            });
+
         },
         
         /**
