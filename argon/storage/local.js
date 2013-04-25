@@ -171,7 +171,7 @@ Class(Argon.Storage, 'Local')({
             };
             
 			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
 
             if ((typeof requestObj) === 'undefined' || requestObj === null) {
@@ -189,7 +189,7 @@ Class(Argon.Storage, 'Local')({
             var data = found; 
             
             for (i = 0; i < storage.processors.length; i++) {
-                data = storage.processors[i](data);
+                data = storage.processors[i](data, requestObj);
             }
             callback(data);
             
@@ -207,7 +207,7 @@ Class(Argon.Storage, 'Local')({
             var storage = this;
 
 			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
 
             data = Object.keys(this.storage).filter(function (property) {
@@ -217,7 +217,7 @@ Class(Argon.Storage, 'Local')({
             var data = this.storage[data[0]];
 
             for (i = 0; i < storage.processors.length; i++) {
-                data = storage.processors[i](data);
+                data = storage.processors[i](data, requestObj);
             }
             callback(data);
 
@@ -253,7 +253,7 @@ Class(Argon.Storage, 'Local')({
             var data = this.storage[requestObj.data.id];            
 
             for (i = 0; i < storage.processors.length; i++) {
-                data = storage.processors[i](data);
+                data = storage.processors[i](data, requestObj);
             }
             callback(data);
         },

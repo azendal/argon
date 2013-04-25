@@ -24,7 +24,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     all : function all(callback) {
         var Model = this;
         var request = {
-            find : 'find'
+            find : 'find',
+            model : Model
         };
         
         this.dispatch('beforeAll'); 
@@ -49,6 +50,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         var Model = this;
         var request = {
             action : 'findOne',
+            model : Model,
             params : {
                 id : id
             }
@@ -136,7 +138,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     if (model.hasOwnProperty('id') && model.id !== '') {
                         request = {
                             action : 'update',
-                            data : model
+                            data : model,
+                            model : model.constructor
                         };
                         model.constructor.storage.update(request, function updateCallback(data) {
                             model.constructor.dispatch('afterSave', {
@@ -154,7 +157,8 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     else {
                         request = {
                             action : 'create',
-                            data : model
+                            data : model,
+                            model : model.constructor
                         };
                         model.constructor.storage.create(request, function createCallback(data) {
                             model.constructor.dispatch('afterSave', {
@@ -186,6 +190,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
             var model = this;
             var request = {
                 action : 'remove',
+                model : model.constructor,
                 data : this
             };
             this.dispatch('beforeDestroy');

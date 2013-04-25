@@ -291,12 +291,12 @@ Class(Argon.Storage, 'JsonRest')({
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_POST;
 
 			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    data = storage.processors[i](data, requestObj);
                 }
                 callback(data);
             });
@@ -316,13 +316,13 @@ Class(Argon.Storage, 'JsonRest')({
             storage = this;
             callback = callback || function(){};
 
-			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
-            }
-
             if (typeof requestObj === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
+            }
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
 
             requestObj.config = {};
@@ -331,7 +331,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    data = storage.processors[i](data, requestObj);
                 }
                 callback(data);
             });
@@ -351,13 +351,13 @@ Class(Argon.Storage, 'JsonRest')({
             storage = this;
             callback = callback || function(){};
 
-			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
-            }
-
             if (typeof requestObj === 'undefined' || requestObj === null) {
                 callback(null);
                 return this;
+            }
+
+			for (i = 0; i < storage.preprocessors.length; i++) {
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
 
             requestObj.config = {};
@@ -368,7 +368,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    data = storage.processors[i](data, requestObj);
                 }
                 callback(data);
             });
@@ -401,13 +401,13 @@ Class(Argon.Storage, 'JsonRest')({
 
             if (requestObj.data) {
                 for (i = 0; i < storage.preprocessors.length; i++) {
-                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                    requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
                 }
             }
 
             this.constructor._sendRequest(requestObj, function(data){
                 for (i = 0; i < storage.processors.length; i++) {
-                    data = storage.processors[i](data);
+                    data = storage.processors[i](data, requestObj);
                 }
                 callback(data);
             });
@@ -444,7 +444,7 @@ Class(Argon.Storage, 'JsonRest')({
 
             if (requestObj.data) {
                 for (i = 0; i < storage.preprocessors.length; i++) {
-                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                    requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
                 }
             }
 
