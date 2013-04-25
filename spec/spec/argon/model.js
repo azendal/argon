@@ -142,27 +142,53 @@ Te.suite('Model')(function(){
                     storage : (new Argon.Storage.Local()),
                     validations : {
                         presenceOf : {
-                            validate : function() {
-                                return this.hasOwnProperty('data') && !!this['data'];
-                            },
-                            message : "Data is required"
+                            validate : function(callback) {
+                                if (this.hasOwnProperty('data') && !!this['data']) {
+                                    callback();
+                                } else {
+                                    callback("Data is required");
+                                }
+                            }
+                        },
+                        someAsyncOperation : {
+                            validate : function (callback) {
+                                var _this = this;
+                                setTimeout(function () {
+                                    if (_this.asyncValidationPass) {
+                                        callback();
+                                    } else {
+                                        callback('.asyncValidationPass should be true');
+                                    }
+                                }, 1000);
+                            }
                         }
                     }
                 });
 
                 this.specify('Validate required field data is present')(function(spec){
-                  var model = new ValidationModel({data : 3});
-                  spec.assert(model.isValid()).toEqual(true);
-                  spec.completed();
+                  var model = new ValidationModel({data : 3, asyncValidationPass: true});
+                  model.isValid(function (isValid) {
+                      spec.assert(isValid).toEqual(true);
+                      spec.completed();
+                  });
                 });
 
                 this.specify('Should not save model without data field')(function(spec){
                   var model = new ValidationModel();
-                  model.save();
-                  spec.assert(model.errors[0]).toEqual("Data is required");
-                  spec.completed();
+                  model.save(function () {
+                      spec.assert(model.errors[0]).toEqual("Data is required");
+                      spec.completed();
+                  });
                 });
 
+                this.specify('Asynchronous validation fails')(function (spec) {
+                    var model = new ValidationModel({data : 3});
+                    model.isValid(function (isValid) {
+                        spec.assert(isValid).toEqual(false);
+                        spec.assert(model.errors[0]).toEqual('.asyncValidationPass should be true');
+                        spec.completed();
+                    });
+                });
             });
         });
 
