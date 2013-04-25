@@ -259,10 +259,10 @@ Class(Argon.Storage, 'JsonRest')({
                 }
             }
 
-            if((typeof this.processors) != 'array'){
+            if(this.processors instanceof Array === false){
                 this.processors = [].concat(this.constructor.processors);
             }
-			if((typeof this.preprocessors) != 'array'){
+			if(this.preprocessors instanceof Array === false){
                 this.preprocessors = [].concat(this.constructor.preprocessors);
             }
         },

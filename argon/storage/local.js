@@ -109,10 +109,10 @@ Class(Argon.Storage, 'Local')({
                 }, this);
             }
 
-            if((typeof this.processors) != 'array'){
+            if(this.processors instanceof Array === false){
                 this.processors = [].concat(this.constructor.processors);
             }
-			if((typeof this.preprocessors) != 'array'){
+			if(this.preprocessors instanceof Array === false){
                 this.preprocessors = [].concat(this.constructor.preprocessors);
             }
         },
@@ -140,7 +140,7 @@ Class(Argon.Storage, 'Local')({
             requestObj.data.id = this._generateUid();
 
 			for (i = 0; i < storage.preprocessors.length; i++) {
-                requestObj.data = storage.preprocessors[i](requestObj.data);
+                requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
             }
             this.storage[requestObj.data.id] = requestObj.data;
             
@@ -244,7 +244,7 @@ Class(Argon.Storage, 'Local')({
             
             if (requestObj.data) {
                 for (i = 0; i < storage.preprocessors.length; i++) {
-                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                    requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
                 }
             }
             
@@ -280,7 +280,7 @@ Class(Argon.Storage, 'Local')({
 
             if (requestObj.data) {
                 for (i = 0; i < storage.preprocessors.length; i++) {
-                    requestObj.data = storage.preprocessors[i](requestObj.data);
+                    requestObj.data = storage.preprocessors[i](requestObj.data, requestObj);
                 }
             }
             

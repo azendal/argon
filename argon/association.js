@@ -19,14 +19,18 @@ Module(Argon, 'Association')({
             type           : 'HAS_ONE',
             name           : config.name || config,
             cardinality    : 'many',
-            targetModel    : config.targetModel || window[config],
+            targetModel    : config.targetModel || config,
             localProperty  : config.localProperty || 'id',
-            targetProperty : config.targetProperty || (config + '_id')
+            targetProperty : config.targetProperty || (config + 'Id')
         };
         
         this.prototype[association.name] = function(callback){
             var model = this;
-            association.targetModel.all(function (data) {
+            var targetModel = window;
+            association.targetModel.split('.').forEach(function (property) {
+                targetModel = targetModel[property];
+            });
+            targetModel.all(function (data) {
                 var result = data.filter(function (instance) {
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
@@ -52,14 +56,18 @@ Module(Argon, 'Association')({
             type           : 'HAS_MANY',
             name           : config.name || config,
             cardinality    : 'many',
-            targetModel    : config.targetModel || window[config],
+            targetModel    : config.targetModel || config,
             localProperty  : config.localProperty || 'id',
-            targetProperty : config.targetProperty || (config + '_id')
+            targetProperty : config.targetProperty || (config + 'Id')
         };
         
         this.prototype[association.name] = function(callback){
             var model = this;
-            association.targetModel.all(function (data) {
+            var targetModel = window;
+            association.targetModel.split('.').forEach(function (property) {
+                targetModel = targetModel[property];
+            });
+            targetModel.all(function (data) {
                 var result = data.filter(function (instance) {
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
@@ -85,14 +93,18 @@ Module(Argon, 'Association')({
             type           : 'BELONGS_TO',
             name           : config.name || config,
             cardinality    : 'many',
-            targetModel    : config.targetModel || window[config],
-            localProperty  : config.localProperty || (config + '_id'),
+            targetModel    : config.targetModel || config,
+            localProperty  : config.localProperty || (config + 'Id'),
             targetProperty : config.targetProperty || 'id'
         };
         
         this.prototype[association.name] = function (callback) {
             var model = this;
-            association.targetModel.all(function (data) {
+            var targetModel = window;
+            association.targetModel.split('.').forEach(function (property) {
+                targetModel = targetModel[property];
+            });
+            targetModel.all(function (data) {
                 var result = data.filter(function (instance) {
                     return instance[association.targetProperty] === model[association.localProperty];
                 });
