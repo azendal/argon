@@ -326,7 +326,7 @@ Class(Argon.Storage, 'JsonRest')({
             }
 
             requestObj.config = {};
-            requestObj.config.url = requestObj.config.url || this.url.get;
+            requestObj.config.url = requestObj.config.url || this.url.find;
             requestObj.config.type = requestObj.config.type || this.constructor.REQUEST_TYPE_GET;
 
             this.constructor._sendRequest(requestObj, function(data){
