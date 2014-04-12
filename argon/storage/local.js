@@ -214,7 +214,7 @@ Class(Argon.Storage, 'Local')({
                 return requestObj.params.id === this.storage[property].id;
             }, this);
             
-            var data = this.storage[data[0]];
+            data = this.storage[data[0]];
 
             for (i = 0; i < storage.processors.length; i++) {
                 data = storage.processors[i](data, requestObj);

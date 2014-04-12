@@ -47,14 +47,16 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
     @return [Argon.Model].
     **/
     find : function find(id, callback) {
-        var Model = this;
-        var request = {
+        var Model, request;
+
+        Model = this;
+        request = {
             action : 'findOne',
             model : Model,
             params : {
                 id : id
             }
-        }
+        };
         this.storage.findOne(request, function findOneCallback(data) {
             if (callback) {
                 callback(data);
@@ -174,7 +176,9 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                         });
                     }
                 } else {
-                    callback && callback(model);
+                    if (callback) {
+                        callback(data);
+                    }
                 }
             });
 
