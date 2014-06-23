@@ -311,7 +311,7 @@ Class(Argon.Storage, 'JsonRest')({
         @argument callback <optional> [Function]
         **/
         find : function find(requestObj, callback) {
-            var i, found, storedData, property, requestConfig, storage;
+            var i, found, storedData, property, storage;
 
             storage = this;
             callback = callback || function(){};
@@ -384,7 +384,7 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         update : function update(requestObj, callback) {
 
-            var found, storedData, property, storage;
+            var i, found, storedData, storage;
 
             storage = this;
 
@@ -427,7 +427,7 @@ Class(Argon.Storage, 'JsonRest')({
         **/
         remove : function remove(requestObj, callback) {
 
-            var requestConfig, storage;
+            var i, storage;
 
             storage = this;
 
