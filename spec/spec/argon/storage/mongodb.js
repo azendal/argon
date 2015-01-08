@@ -11,6 +11,10 @@ require('../../../../argon/storage');
 require('../../../../argon/storage/mongodb');
 require('tellurium');
 
+var TestModel = function TestModel(config) {
+	return config;
+};
+
 setupSuite = function setupSuite(db) {
 	Tellurium.suite('MongoDB Storage')(function(){
 		var storage = new Argon.Storage.MongoDB({
@@ -56,6 +60,31 @@ setupSuite = function setupSuite(db) {
 			});
 
 		});
+
+		this.describe('Search records')(function () {
+			this.specify('should search and return matching records')(function () {
+				var spec    = this,
+					gusData = {name : 'Gus', surname : 'Ortiz', age : 30},
+					ferData = {name : 'Azendal', surname : 'Transvina', age : 5000},
+					jonData = {name : 'Jon', surname : 'Snow', age : 18};
+
+				storage.create({model : TestModel, data : gusData}, function (gus) {
+					storage.create({model : TestModel, data : ferData}, function (fer) {
+						storage.create({model : TestModel, data : jonData}, function (jon) {
+							storage.search({model : TestModel, query : {age : {$lt : 40}}}, function (dudes) {
+								spec.assert(dudes.length).toBe(2);
+								spec.assert(dudes.map(function (dude) {
+									return dude.name;
+								}).sort().join(',')).toBe('Gus,Jon');
+
+								spec.completed();
+							})
+						});
+					});
+				});
+			})
+		});
+
 	});
 };
 

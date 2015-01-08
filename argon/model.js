@@ -64,6 +64,33 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
         });
         return this;
     },
+
+    /**
+    Fetches as many record matching a given query. Query lenguaje and structure 
+    depends on the storage used for the model.
+    @method search <public, static>
+    @argument query <required> [Object] the query with the criteria to perform the lookup.
+    @argument callback <optional> [Function] method to handle data.
+    @return [Array].
+    **/
+    search : function search(query, callback) {
+        var Model;
+
+        Model = this,
+        request = {
+            action : 'search',
+            model : Model,
+            query : query
+        };
+
+        this.storage.search(request, function searchCallback(data) {
+            if (callback) {
+                callback(data);
+            }
+        });
+
+        return this;
+    },
     
     prototype : {
 

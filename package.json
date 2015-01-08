@@ -1,0 +1,22 @@
+{
+  "name": "argon",
+  "description": "Javascript active record implementation.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azendal/argon.git"
+  },
+  "main": "argon.js",
+  "directories": {
+    "argon": "./argon"
+  },
+  "keywords": [],
+  "dependencies": {
+    "mongodb": "^1.4.28",
+    "neon": "^2.0.0",
+    "tellurium": "^2.0.0"
+  },
+  "engines": {
+    "node": "*"
+  }
+}

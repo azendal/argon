@@ -77,6 +77,22 @@ Class(Argon.Storage, 'MongoDB')({
             return this;
         },
 
+        search : function search(requestObj, callback) {
+            this.collection.find(requestObj.query, function searchCallback(error, data) {
+                if (error) {
+                    return callback(error);
+                }
+
+                data.toArray(function arrayHandler(error, documents) {
+                    callback(JSON.parse(JSON.stringify(documents)).map(function (doc) { 
+                        return new requestObj.model(doc)
+                    }));
+                });
+            });
+
+            return this;
+        },
+
         remove : function remove(requestObj, callback) {
             var id = requestObj.data._id;
 
