@@ -225,6 +225,15 @@ Class(Argon.Storage, 'Local')({
         },
 
         /**
+        Allias for find
+        @method search <public>
+        **/
+        search : function search(requestObj, callback) {
+            this.find(requestObj, callback);
+            return this;
+        },
+
+        /**
         Updates a set of data on the storage instance
         @method put <public>
         @argument query <required> [Object] the query to the elements that must be updated

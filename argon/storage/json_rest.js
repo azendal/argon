@@ -377,6 +377,15 @@ Class(Argon.Storage, 'JsonRest')({
         },
 
         /**
+        Allias for find
+        @method search <public>
+        **/
+        search : function search(requestObj, callback) {
+            this.find(requestObj, callback);
+            return this;
+        },
+
+        /**
         Updates from the resource
         @method put <public>
         @argument params <optional> [Object]
