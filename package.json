@@ -1,0 +1,27 @@
+{
+  "name": "argonjs",
+  "version": "1.0.3",
+  "description": "Active Record for EcmaScript",
+  "main": "argon.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgarza/argon.git"
+  },
+  "keywords": [
+    "ActiveRecord",
+    "node",
+    "database"
+  ],
+  "author": "Fernando Trasviña @azendal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sgarza/argon/issues"
+  },
+  "homepage": "https://github.com/sgarza/argon",
+  "dependencies": {
+    "neon": "^2.0.0"
+  }
+}
