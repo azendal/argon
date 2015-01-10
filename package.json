@@ -1,6 +1,6 @@
 {
   "name": "argonjs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Active Record for EcmaScript",
   "main": "argon.js",
   "scripts": {

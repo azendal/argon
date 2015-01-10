@@ -3,9 +3,9 @@
 if (typeof require === 'function') {
   require('neon');
   require('./vendor/validation_support');
-  require('./node_modules/neon/stdlib/custom_event');
-  require('./node_modules/neon/stdlib/custom_event_support');
-  require('./node_modules/neon/stdlib/node_support');
+  require('neon/stdlib/custom_event');
+  require('neon/stdlib/custom_event_support');
+  require('neon/stdlib/node_support');
   require('./vendor/string.prototype');
 }
 
