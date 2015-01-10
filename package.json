@@ -1,5 +1,5 @@
 {
-  "name": "Argon",
+  "name": "ArgonJS",
   "version": "1.0.0",
   "description": "Active Record for EcmaScript",
   "main": "argon.js",
