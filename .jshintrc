@@ -1,0 +1,14 @@
+{
+  "undef": true,
+  "globals": {
+    "window": true,
+    "Module": true,
+    "Class": true,
+    "Argon": true,
+    "CustomEventSupport": true,
+    "ValidationSupport": true,
+    "$": true,
+    "console": true,
+    "PlaceHolder": true
+  }
+}
