@@ -177,7 +177,7 @@ Module(Argon, 'Model').includes(CustomEventSupport, ValidationSupport)({
                     }
                 } else {
                     if (callback) {
-                        callback(data);
+                        callback(null);
                     }
                 }
             });

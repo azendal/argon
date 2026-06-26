@@ -126,7 +126,7 @@ Class(Argon.Storage, 'Local')({
         **/
         create    : function create(requestObj, callback) {
            
-            var storage = this;
+            var i, storage = this;
 
             callback = callback || function defaultPostCallback() {
                 //setup Error Notification here
@@ -162,7 +162,7 @@ Class(Argon.Storage, 'Local')({
         @return [Array]
         **/
         find : function find(requestObj, callback) {
-            var found, storedData, property;
+            var i, found, storedData, property;
 
             var storage = this;
             
@@ -203,7 +203,7 @@ Class(Argon.Storage, 'Local')({
         @argument callback <optional> [Function]
         **/
         findOne : function findOne(requestObj, callback) {
-            var data;
+            var i, data;
             var storage = this;
 
 			for (i = 0; i < storage.preprocessors.length; i++) {
@@ -232,7 +232,7 @@ Class(Argon.Storage, 'Local')({
         @return [Object] this
         **/
         update : function update(requestObj, callback) {
-            var storage = this;            
+            var i, storage = this;
             callback = callback || function defaultPutCallBack() {
                 //setup Error notification
             };
@@ -266,7 +266,7 @@ Class(Argon.Storage, 'Local')({
         @return [Object] this
         **/
         remove  : function remove(requestObj, callback) {
-            var storageInstance = this;
+            var i, storageInstance = this;
             var storage = this;
             
             callback = callback || function defaultRemoveCallBack() {
